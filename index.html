@@ -366,30 +366,34 @@ async function makePDF(){
 }
 async function generatePDF(){try{let blob=await makePDF();let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="XC-Passenger-Counts.pdf";a.click();show("PDF generated.")}catch(e){show("")}}
 function printPassengerReport(){
- const escReport=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+ saveCounts();
+ const escReport=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
  const dmyReport=d=>d?String(d).split("-").reverse().join("/"):"";
  let html="";
  trains.forEach((t,i)=>{
-   const rows=(t.rows||[]).filter(r=>r.station||r.first!==""||r.standard!=="");
-   const trs=rows.map(r=>{const first=Number(r.first||0),standard=Number(r.standard||0);return '<tr><td>'+escReport(r.station||"")+'</td><td>'+first+'</td><td>'+standard+'</td><td>'+ (first+standard)+'</td></tr>';}).join("");
-   html+='<section class="count-report-block"><h2>TRAIN '+(i+1)+'</h2><div class="count-report-meta">'+
+   const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
+   const trs=rows.map(r=>{const first=Number(r.first||0),standard=Number(r.standard||0);return '<tr><td>'+escReport(r.station||"")+'</td><td class="num">'+first+'</td><td class="num">'+standard+'</td><td class="num total">'+(first+standard)+'</td></tr>';}).join("");
+   html+='<section class="train"><h2>TRAIN '+(i+1)+'</h2><div class="meta">'+
      '<div><strong>DATE</strong><span>'+escReport(dmyReport(t.date))+'</span></div>'+ 
      '<div><strong>HEADCODE(s)</strong><span>'+escReport((t.headcode||"").toUpperCase())+'</span></div>'+ 
      '<div><strong>UNIT</strong><span>'+escReport(t.unitNumber||"")+'</span></div>'+ 
      (t.fullAndStanding?'<div><strong>FULL AND STANDING</strong><span>Yes</span></div>':'')+'</div>'+ 
-     '<table><thead><tr><th>STATION</th><th>FIRST</th><th>STANDARD</th><th>TOTAL PASSENGERS</th></tr></thead><tbody>'+(trs||'<tr><td colspan="4">No passenger counts entered</td></tr>')+'</tbody></table></section>';
+     '<table class="passenger-count-table"><thead><tr><th>STATION</th><th>FIRST</th><th>STANDARD</th><th>TOTAL PASSENGERS</th></tr></thead><tbody>'+(trs||'<tr><td colspan="4">No passenger counts entered</td></tr>')+'</tbody></table></section>';
  });
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
- let area=document.getElementById("passengerPrintArea");
- if(!area){area=document.createElement("div");area.id="passengerPrintArea";document.body.appendChild(area);}
- area.innerHTML='<div class="report-brand"><img src="crosscountry-logo-white.png" alt="CrossCountry"><div style="font-size:18pt;font-weight:800">PASSENGER COUNT REPORT</div></div>'+html+
-   (notes?'<div class="count-report-notes"><strong>REASON / NOTES</strong><p>'+escReport(notes)+'</p></div>':"")+ 
-   '<p style="font-size:9pt;color:#555;margin-top:24px;border-top:2px solid #f5c242;padding-top:8px">Exported from XC Train Manager Staff App</p>';
- document.body.classList.add("passenger-print");
- const cleanup=()=>{document.body.classList.remove("passenger-print");window.removeEventListener("afterprint",cleanup)};
- window.addEventListener("afterprint",cleanup);window.print();
+ const logoUrl=new URL("crosscountry-logo-white.png",window.location.href).href;
+ const report='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XC Passenger Count Report</title><style>'+
+ '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:avoid}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:38%}th:nth-child(2){width:14%}th:nth-child(3){width:18%}th:nth-child(4){width:30%}td.total{font-weight:800}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style></head><body>'+
+ '<header class="brand"><img src="'+escReport(logoUrl)+'" alt="CrossCountry"><div class="brand-title">PASSENGER COUNT REPORT</div></header>'+html+
+ (notes?'<section class="notes"><h3>REASON / NOTES</h3><p>'+escReport(notes)+'</p></section>':'')+
+ '<footer class="footer">Exported from XC Train Manager Staff App</footer></body></html>';
+ const win=window.open("","_blank");
+ if(!win){show("PDF export was blocked by the browser. Allow pop-ups for this app and try again.");return;}
+ win.document.open();win.document.write(report);win.document.close();
+ const doPrint=()=>{try{win.focus();win.print();}catch(e){show("Unable to open print dialog. Please try again.");}};
+ const img=win.document.querySelector(".brand img");
+ if(img&&!img.complete){img.onload=doPrint;img.onerror=doPrint;}else{win.setTimeout(doPrint,250);}
 }
-
 async function emailCounts(){
  saveCounts();
  const primary=trains[0]||{};

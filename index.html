@@ -207,17 +207,18 @@ input,select,textarea{font-size:16px!important}
   .train-block{padding:10px;margin:10px 0}
   .train-block table,.train-block tbody{display:block;width:100%}
   .train-block thead{display:none}
-  .train-block tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 54px;gap:7px;padding:10px 0;border-bottom:1px solid #ddd}
+  .train-block tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px 0;border-bottom:1px solid #ddd}
   .train-block tbody td{display:block;min-width:0;border:0;padding:0!important}
   .train-block tbody td:first-child{grid-column:1/-1}
   .train-block tbody td:first-child::before{content:"STATION";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
   .train-block tbody td:first-child input{font-weight:700}
   .train-block tbody td:nth-child(2)::before{content:"FIRST CLASS";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
   .train-block tbody td:nth-child(3)::before{content:"STANDARD";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
-  .train-block tbody td:nth-child(4){display:flex;flex-direction:column;justify-content:end;align-items:center;padding-bottom:8px!important}
-  .train-block tbody td:nth-child(4)::before{content:"TOTAL";font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
-  .train-block tbody td:nth-child(5){display:flex;flex-direction:column;align-items:center;justify-content:end;padding-bottom:8px!important}
-  .train-block tbody td:nth-child(5)::before{content:"SUBMITTED";font-size:8px;font-weight:800;color:#555;margin:0 0 5px}
+  .train-block tbody td:nth-child(4){display:flex;flex-direction:column;justify-content:end;align-items:stretch;min-width:0}
+  .train-block tbody td:nth-child(4)::before{content:"TOTAL PASSENGERS";font-size:10px;font-weight:800;color:#555;margin:0 0 4px;white-space:normal}
+  .train-block tbody td:nth-child(4){font-variant-numeric:tabular-nums}
+  .train-block tbody td:nth-child(5){grid-column:1/-1;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:8px;padding-top:3px!important}
+  .train-block tbody td:nth-child(5)::before{content:"SUBMITTED";font-size:10px;font-weight:800;color:#555;margin:0}
   .train-block tbody td input:not([type="checkbox"]){height:42px;padding:8px 6px!important}
   .archive-calendar-panel{margin:10px 0;padding:10px}
   .archive-calendar-head{gap:6px;flex-wrap:wrap}
@@ -228,9 +229,8 @@ input,select,textarea{font-size:16px!important}
 }
 @media(max-width:360px){
   .grid{grid-template-columns:minmax(0,1fr)}
-  .train-block tbody tr{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 45px;gap:5px}
-  .train-block tbody td:nth-child(4)::before{font-size:8px}
-  .train-block tbody td:nth-child(5)::before{font-size:7px}
+  .train-block tbody tr{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .train-block tbody td:nth-child(2)::before,.train-block tbody td:nth-child(3)::before,.train-block tbody td:nth-child(4)::before{font-size:9px}
 }
 </style>
 </head><body><header class="xc-compact-header"><img alt="XC" class="xc-page-header-logo" src="crosscountry-logo-white.png"/></header>
@@ -309,12 +309,12 @@ function render(){
  <label>Headcode</label><input value="${esc(t.headcode)}" placeholder="e.g. 1V50" oninput="update(${ti},'headcode',this.value)">
   <label>Unit Number (6 digits)</label><input type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" value="${esc(t.unitNumber||"")}" placeholder="e.g. 221101" oninput="update(${ti},'unitNumber',this.value.replace(/\\D/g,'').slice(0,6));this.value=this.value.replace(/\\D/g,'').slice(0,6)" aria-label="Unit Number, six digits">
   <button type="button" class="full-standing-btn ${t.fullAndStanding?'is-active':''}" aria-pressed="${t.fullAndStanding?'true':'false'}" onclick="toggleFullStanding(${ti})">${t.fullAndStanding?'✓ FULL AND STANDING':'⚠ FULL AND STANDING'}</button>
- <table><thead><tr><th>Station</th><th>First Class</th><th>Standard</th><th>Total Passengers</th><th>Submitted</th></tr></thead>
+ <table><thead><tr><th scope="col">Station</th><th scope="col">First Class</th><th scope="col">Standard</th><th scope="col">Total Passengers</th><th scope="col">Submitted</th></tr></thead>
  <tbody>${t.rows.map((r,ri)=>`<tr>
  <td><input value="${esc(r.station)}" oninput="updateRow(${ti},${ri},'station',this.value)"></td>
  <td><input class="${countClass('first',r.first)}" type="text" inputmode="numeric" pattern="[0-9]{1,3}" maxlength="3" value="${esc(r.first)}" oninput="handleCountInput(this,${ti},${ri},'first')" aria-label="First Class passengers, 0 to 999"></td>
  <td><input class="${countClass('standard',r.standard)}" type="text" inputmode="numeric" pattern="[0-9]{1,3}" maxlength="3" value="${esc(r.standard)}" oninput="handleCountInput(this,${ti},${ri},'standard')" aria-label="Standard passengers, 0 to 999"></td>
- <td class="row-total" style="text-align:center;font-weight:800" id="row-total-${ti}-${ri}">${esc(rowTotal(r))}</td>
+ <td class="row-total" style="text-align:center;font-weight:800;font-variant-numeric:tabular-nums" id="row-total-${ti}-${ri}" aria-label="Total passengers, calculated automatically">${esc(rowTotal(r))}</td>
  <td style="text-align:center"><input type="checkbox" aria-label="Station count submitted" ${r.submitted?"checked":""} onchange="updateRow(${ti},${ri},'submitted',this.checked)"></td>
  </tr>`).join("")}</tbody></table>
  </section>`).join("")

@@ -1,5 +1,5 @@
 {
-  "id": "./index.html",
+  "id": "/paxcounts/xc-passenger-counts",
   "name": "XC Passenger Count App",
   "short_name": "Passenger Counts",
   "description": "CrossCountry train passenger counting and reporting app",

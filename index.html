@@ -479,17 +479,25 @@ async function emailCounts(){
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
  let body="REASON / NOTES\n"+(notes||"None entered")+"\n\n";
  trains.forEach((t)=>{
-   const headcode=(t.headcode||"").trim().toUpperCase()||"HEACODE";
-   body+="TRAIN: "+headcode;
-   if(t.fullAndStanding) body+=" - FULL AND STANDING";
-   body+="\n";
+   const headcode=(t.headcode||"").trim().toUpperCase()||"HEADCODE";
+   const rawDate=String(t.date||localISODate());
+   const dateText=/^\d{4}-\d{2}-\d{2}$/.test(rawDate)?rawDate.split("-").reverse().join("/"):rawDate;
+   const unit=String(t.unitNumber||"").trim();
+   body+="TRAIN: "+headcode+"\n";
+   body+="DATE: "+dateText+"\n";
+   if(unit) body+="UNIT: "+unit+"\n";
+   if(t.fullAndStanding) body+="FULL AND STANDING\n";
+   body+="\nSTATION COUNTS\n";
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
+   if(!rows.length){ body+="No passenger counts entered.\n"; }
    rows.forEach(r=>{
      const first=Number(r.first||0), standard=Number(r.standard||0), total=first+standard;
-     body+=(String(r.station||"Station not entered").trim())+": First Class: "+first+" / Standard: "+standard+" [Total: "+total+"]";
-     body+="\n";
+     body+="Station: "+(String(r.station||"Station not entered").trim())+"\n";
+     body+="First Class: "+first+" | Standard: "+standard+" | Total Passengers: "+total+"\n\n";
    });
-   body+="\n";
+   const sumFirst=rows.reduce((sum,r)=>sum+Number(r.first||0),0);
+   const sumStandard=rows.reduce((sum,r)=>sum+Number(r.standard||0),0);
+   body+="TRAIN TOTAL — First Class: "+sumFirst+" | Standard: "+sumStandard+" | Total Passengers: "+(sumFirst+sumStandard)+"\n\n";
  });
  location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
 }

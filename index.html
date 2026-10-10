@@ -194,6 +194,11 @@ input,select,textarea{font-size:16px!important}
 .passenger-actions{gap:8px}
 .passenger-actions button{min-width:0;flex:1 1 130px}
 .train-block table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
+.train-block th:nth-child(1),.train-block td:nth-child(1){width:30%}
+.train-block th:nth-child(2),.train-block td:nth-child(2){width:18%}
+.train-block th:nth-child(3),.train-block td:nth-child(3){width:18%}
+.train-block th:nth-child(4),.train-block td:nth-child(4){width:20%}
+.train-block th:nth-child(5),.train-block td:nth-child(5){width:14%}
 .train-block th,.train-block td{overflow-wrap:anywhere;word-break:normal}
 .train-block td input:not([type="checkbox"]){min-width:0;width:100%;padding:8px 5px!important;font-size:16px!important}
 .train-block td:first-child input{padding-left:7px!important}
@@ -202,14 +207,17 @@ input,select,textarea{font-size:16px!important}
   .train-block{padding:10px;margin:10px 0}
   .train-block table,.train-block tbody{display:block;width:100%}
   .train-block thead{display:none}
-  .train-block tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px;gap:8px;padding:10px 0;border-bottom:1px solid #ddd}
+  .train-block tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 54px;gap:7px;padding:10px 0;border-bottom:1px solid #ddd}
   .train-block tbody td{display:block;min-width:0;border:0;padding:0!important}
   .train-block tbody td:first-child{grid-column:1/-1}
+  .train-block tbody td:first-child::before{content:"STATION";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
   .train-block tbody td:first-child input{font-weight:700}
   .train-block tbody td:nth-child(2)::before{content:"FIRST CLASS";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
   .train-block tbody td:nth-child(3)::before{content:"STANDARD";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
-  .train-block tbody td:nth-child(4){display:flex;align-items:end;justify-content:center;padding-bottom:8px!important}
-  .train-block tbody td:nth-child(4)::before{content:"DONE";font-size:9px;font-weight:800;color:#555;margin-right:3px;align-self:center}
+  .train-block tbody td:nth-child(4){display:flex;flex-direction:column;justify-content:end;align-items:center;padding-bottom:8px!important}
+  .train-block tbody td:nth-child(4)::before{content:"TOTAL";font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
+  .train-block tbody td:nth-child(5){display:flex;flex-direction:column;align-items:center;justify-content:end;padding-bottom:8px!important}
+  .train-block tbody td:nth-child(5)::before{content:"SUBMITTED";font-size:8px;font-weight:800;color:#555;margin:0 0 5px}
   .train-block tbody td input:not([type="checkbox"]){height:42px;padding:8px 6px!important}
   .archive-calendar-panel{margin:10px 0;padding:10px}
   .archive-calendar-head{gap:6px;flex-wrap:wrap}
@@ -220,8 +228,9 @@ input,select,textarea{font-size:16px!important}
 }
 @media(max-width:360px){
   .grid{grid-template-columns:minmax(0,1fr)}
-  .train-block tbody tr{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;gap:5px}
+  .train-block tbody tr{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 45px;gap:5px}
   .train-block tbody td:nth-child(4)::before{font-size:8px}
+  .train-block tbody td:nth-child(5)::before{font-size:7px}
 }
 </style>
 </head><body><header class="xc-compact-header"><img alt="XC" class="xc-page-header-logo" src="crosscountry-logo-white.png"/></header>
@@ -243,7 +252,7 @@ input,select,textarea{font-size:16px!important}
 </section>
 
 <main>
-<div class="passenger-actions"><button onclick="saveCounts()" type="button">💾 Save Locally</button><button onclick="openArchiveCalendar()" type="button">🗓️ Archive Calendar</button></div>
+<div class="passenger-actions"><button onclick="saveCounts()" type="button">💾 Save Locally</button><button onclick="openArchiveCalendar()" type="button">🗓️ Archive Calendar</button><button class="clear-btn" onclick="clearAllCounts()" type="button">🗑️ Clear All</button></div>
 <div id="trains"></div>
 <div class="passenger-actions"><button onclick="addTrain()" type="button">＋ Add Additional Train</button></div>
 <div class="passenger-actions passenger-export-actions"><button id="passengerGeneratePDF" onclick="printPassengerReport()" type="button">📄 Export Report (PDF)</button><button onclick="emailCounts()" type="button">✉️ Email Report</button></div>
@@ -258,7 +267,7 @@ function localISODate(date=new Date()){
   const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
   return `${y}-${m}-${d}`;
 }
-function blank(){return {date:localISODate(),headcode:"",unitNumber:"",fullAndStanding:false,rows:Array.from({length:10},()=>({station:"",first:"",standard:"",entered:false}))}}
+function blank(){return {date:localISODate(),headcode:"",unitNumber:"",fullAndStanding:false,rows:Array.from({length:10},()=>({station:"",first:"",standard:"",submitted:false}))}}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function formatDateDMY(value){
   if(!value)return "";
@@ -286,7 +295,9 @@ function formatDateInput(input,t){
 function addTrain(){trains.push(blank());persistSilently();render()}
 function persistSilently(){try{localStorage.setItem(KEY,JSON.stringify({trains,reasonNotes}));}catch(e){/* Save Locally reports storage failures to the user. */}}
 function update(t,k,v){trains[t][k]=v;persistSilently()} function toggleFullStanding(t){trains[t].fullAndStanding=!trains[t].fullAndStanding;persistSilently();render();}
-function updateRow(t,r,k,v){trains[t].rows[r][k]=v;persistSilently()}
+function updateRow(t,r,k,v){trains[t].rows[r][k]=v;persistSilently();if(k==="first"||k==="standard")updateRowTotal(t,r)}
+function rowTotal(r){if(String(r.first??"")===""&&String(r.standard??"")==="")return "";return String(Number(r.first||0)+Number(r.standard||0))}
+function updateRowTotal(t,r){const el=document.getElementById(`row-total-${t}-${r}`);if(el)el.textContent=rowTotal(trains[t].rows[r])}
 function handleCountInput(input,t,r,k){const digits=String(input.value||'').replace(/\D/g,'').slice(0,3);input.value=digits;updateRow(t,r,k,digits);input.className=countClass(k,digits);persistSilently()}
 function countClass(type,v){const n=Number(v); if(v===""||Number.isNaN(n)) return ""; if(type==="standard"){return n<100?"count-black":n<=150?"count-green":n<=200?"count-orange":"count-red"} return n<=8?"count-black":n<=15?"count-green":n<=20?"count-orange":n<=25?"count-red":"count-red-bold"}
 function render(){
@@ -298,18 +309,30 @@ function render(){
  <label>Headcode</label><input value="${esc(t.headcode)}" placeholder="e.g. 1V50" oninput="update(${ti},'headcode',this.value)">
   <label>Unit Number (6 digits)</label><input type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" value="${esc(t.unitNumber||"")}" placeholder="e.g. 221101" oninput="update(${ti},'unitNumber',this.value.replace(/\\D/g,'').slice(0,6));this.value=this.value.replace(/\\D/g,'').slice(0,6)" aria-label="Unit Number, six digits">
   <button type="button" class="full-standing-btn ${t.fullAndStanding?'is-active':''}" aria-pressed="${t.fullAndStanding?'true':'false'}" onclick="toggleFullStanding(${ti})">${t.fullAndStanding?'✓ FULL AND STANDING':'⚠ FULL AND STANDING'}</button>
- <table><thead><tr><th>Station</th><th>First Class</th><th>Standard</th><th>Count entered</th></tr></thead>
+ <table><thead><tr><th>Station</th><th>First Class</th><th>Standard</th><th>Total Passengers</th><th>Submitted</th></tr></thead>
  <tbody>${t.rows.map((r,ri)=>`<tr>
  <td><input value="${esc(r.station)}" oninput="updateRow(${ti},${ri},'station',this.value)"></td>
  <td><input class="${countClass('first',r.first)}" type="text" inputmode="numeric" pattern="[0-9]{1,3}" maxlength="3" value="${esc(r.first)}" oninput="handleCountInput(this,${ti},${ri},'first')" aria-label="First Class passengers, 0 to 999"></td>
  <td><input class="${countClass('standard',r.standard)}" type="text" inputmode="numeric" pattern="[0-9]{1,3}" maxlength="3" value="${esc(r.standard)}" oninput="handleCountInput(this,${ti},${ri},'standard')" aria-label="Standard passengers, 0 to 999"></td>
- <td style="text-align:center"><input type="checkbox" ${r.entered?"checked":""} onchange="updateRow(${ti},${ri},'entered',this.checked)"></td>
+ <td class="row-total" style="text-align:center;font-weight:800" id="row-total-${ti}-${ri}">${esc(rowTotal(r))}</td>
+ <td style="text-align:center"><input type="checkbox" aria-label="Station count submitted" ${r.submitted?"checked":""} onchange="updateRow(${ti},${ri},'submitted',this.checked)"></td>
  </tr>`).join("")}</tbody></table>
  </section>`).join("")
 }
 function saveCounts(){
   try{localStorage.setItem(KEY,JSON.stringify({trains,reasonNotes}));show("Passenger counts saved locally.");return true;}
   catch(e){show("Unable to save locally. Check browser storage settings or available space.");return false;}
+}
+
+function clearAllCounts(){
+  const ok=window.confirm("Clear all passenger counts currently on this form, including train details and Reason / Notes? Archived reports will not be deleted.");
+  if(!ok)return;
+  trains=[blank()];
+  reasonNotes="";
+  persistSilently();
+  render();
+  show("Form cleared. Archived reports have been kept.");
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 
@@ -492,8 +515,8 @@ try{
       station:String(r.station||""),
       first:String(r.first??"").replace(/\D/g,"").slice(0,3),
       standard:String(r.standard??"").replace(/\D/g,"").slice(0,3),
-      entered:!!r.entered
-    })).concat(Array.from({length:Math.max(0,10-(Array.isArray(t.rows)?t.rows.length:0))},()=>({station:"",first:"",standard:"",entered:false})))
+      submitted:!!(r.submitted??r.entered)
+    })).concat(Array.from({length:Math.max(0,10-(Array.isArray(t.rows)?t.rows.length:0))},()=>({station:"",first:"",standard:"",submitted:false})))
   }));
   if(!trains.length)trains=[blank()];
 }catch(e){trains=[blank()];reasonNotes="";}

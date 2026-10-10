@@ -242,6 +242,7 @@ function formatDateInput(input,t){
 function addTrain(){trains.push(blank());render()}
 function update(t,k,v){trains[t][k]=v} function toggleFullStanding(t){trains[t].fullAndStanding=!trains[t].fullAndStanding;render();}
 function updateRow(t,r,k,v){trains[t].rows[r][k]=v}
+function handleCountInput(input,t,r,k){const digits=String(input.value||'').replace(/\D/g,'').slice(0,3);input.value=digits;updateRow(t,r,k,digits);input.className=countClass(k,digits)}
 function countClass(type,v){const n=Number(v); if(v===""||Number.isNaN(n)) return ""; if(type==="standard"){return n<100?"count-black":n<=150?"count-green":n<=200?"count-orange":"count-red"} return n<=8?"count-black":n<=15?"count-green":n<=20?"count-orange":n<=25?"count-red":"count-red-bold"}
 function render(){
  const notes=document.getElementById("reasonNotes"); if(notes && notes.value!==reasonNotes) notes.value=reasonNotes;
@@ -255,8 +256,8 @@ function render(){
  <table><thead><tr><th>Station</th><th>First Class</th><th>Standard</th><th>Count entered</th></tr></thead>
  <tbody>${t.rows.map((r,ri)=>`<tr>
  <td><input value="${esc(r.station)}" oninput="updateRow(${ti},${ri},'station',this.value)"></td>
- <td><input class="${countClass('first',r.first)}" type="number" inputmode="numeric" value="${esc(r.first)}" oninput="updateRow(${ti},${ri},'first',this.value);render()" min="0" max="999" step="1" inputmode="numeric"></td>
- <td><input class="${countClass('standard',r.standard)}" type="number" inputmode="numeric" value="${esc(r.standard)}" oninput="updateRow(${ti},${ri},'standard',this.value);render()" min="0" max="999" step="1" inputmode="numeric"></td>
+ <td><input class="${countClass('first',r.first)}" type="text" inputmode="numeric" pattern="[0-9]{1,3}" maxlength="3" value="${esc(r.first)}" oninput="handleCountInput(this,${ti},${ri},'first')" aria-label="First Class passengers, 0 to 999"></td>
+ <td><input class="${countClass('standard',r.standard)}" type="text" inputmode="numeric" pattern="[0-9]{1,3}" maxlength="3" value="${esc(r.standard)}" oninput="handleCountInput(this,${ti},${ri},'standard')" aria-label="Standard passengers, 0 to 999"></td>
  <td style="text-align:center"><input type="checkbox" ${r.entered?"checked":""} onchange="updateRow(${ti},${ri},'entered',this.checked)"></td>
  </tr>`).join("")}</tbody></table>
  </section>`).join("")
@@ -372,18 +373,20 @@ function printPassengerReport(){
  let html="";
  trains.forEach((t,i)=>{
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
-   const trs=rows.map(r=>{const first=Number(r.first||0),standard=Number(r.standard||0);return '<tr><td>'+escReport(r.station||"")+'</td><td class="num">'+first+'</td><td class="num">'+standard+'</td><td class="num total">'+(first+standard)+'</td></tr>';}).join("");
+   let sumFirst=0,sumStandard=0;
+   const trs=rows.map(r=>{const first=Number(r.first||0),standard=Number(r.standard||0);sumFirst+=first;sumStandard+=standard;return '<tr><td>'+escReport(r.station||"")+'</td><td class="num">'+first+'</td><td class="num">'+standard+'</td><td class="num total">'+(first+standard)+'</td></tr>';}).join("");
+   const totalRow=rows.length?'<tr class="grand-total"><th scope="row">TRAIN TOTAL</th><td class="num">'+sumFirst+'</td><td class="num">'+sumStandard+'</td><td class="num">'+(sumFirst+sumStandard)+'</td></tr>':'';
    html+='<section class="train"><h2>TRAIN '+(i+1)+'</h2><div class="meta">'+
      '<div><strong>DATE</strong><span>'+escReport(dmyReport(t.date))+'</span></div>'+ 
      '<div><strong>HEADCODE(s)</strong><span>'+escReport((t.headcode||"").toUpperCase())+'</span></div>'+ 
      '<div><strong>UNIT</strong><span>'+escReport(t.unitNumber||"")+'</span></div>'+ 
      (t.fullAndStanding?'<div><strong>FULL AND STANDING</strong><span>Yes</span></div>':'')+'</div>'+ 
-     '<table class="passenger-count-table"><thead><tr><th>STATION</th><th>FIRST</th><th>STANDARD</th><th>TOTAL PASSENGERS</th></tr></thead><tbody>'+(trs||'<tr><td colspan="4">No passenger counts entered</td></tr>')+'</tbody></table></section>';
+     '<table class="passenger-count-table"><thead><tr><th>STATION</th><th>FIRST</th><th>STANDARD</th><th>TOTAL PASSENGERS</th></tr></thead><tbody>'+(trs||'<tr><td colspan="4">No passenger counts entered</td></tr>')+totalRow+'</tbody></table></section>';
  });
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
  const logoUrl=new URL("crosscountry-logo-white.png",window.location.href).href;
  const report='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XC Passenger Count Report</title><style>'+
- '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:avoid}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:38%}th:nth-child(2){width:14%}th:nth-child(3){width:18%}th:nth-child(4){width:30%}td.total{font-weight:800}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style></head><body>'+
+ '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:auto;page-break-inside:auto}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere;word-break:normal}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:38%}th:nth-child(2){width:14%}th:nth-child(3){width:18%}th:nth-child(4){width:30%}td.total{font-weight:800}.grand-total th,.grand-total td{font-weight:800;background:#f7f0e0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style></head><body>'+
  '<header class="brand"><img src="'+escReport(logoUrl)+'" alt="CrossCountry"><div class="brand-title">PASSENGER COUNT REPORT</div></header>'+html+
  (notes?'<section class="notes"><h3>REASON / NOTES</h3><p>'+escReport(notes)+'</p></section>':'')+
  '<footer class="footer">Exported from XC Train Manager Staff App</footer></body></html>';
@@ -399,18 +402,27 @@ async function emailCounts(){
  const primary=trains[0]||{};
  const emailDate=primary.date?primary.date.split("-").reverse().join("/"):new Date().toLocaleDateString("en-GB");
  const emailHeadcodes=trains.map(t=>(t.headcode||"").trim()).filter(Boolean);
- const subject="PaxCount for "+(emailHeadcodes.length?emailHeadcodes.join(" "):"HEADCODE(s)")+" on "+emailDate;
- let body="Hello,\n\nDue to STAR Mobile not being available, please find counts for the following train(s):\n\n";
+ const subject="Passenger Counts — "+(emailHeadcodes.length?emailHeadcodes.join(" "):"Headcode not entered")+" — "+emailDate;
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
- if(notes)body+="REASON / NOTES: "+notes+"\n\n";
- body+="PASSENGER COUNT REPORT\n\n";
+ let body="PASSENGER COUNT REPORT\n"+"=".repeat(23)+"\n\n";
+ body+="Please find the passenger counts below.\n\n";
  trains.forEach((t,i)=>{
-   body+="TRAIN "+(i+1)+"\nDATE: "+(t.date?t.date.split("-").reverse().join("/"):"")+"\nHEADCODE(s): "+(t.headcode||"").toUpperCase()+"\nUNIT: "+(t.unitNumber||"")+(t.fullAndStanding?"\nFULL AND STANDING: Yes":"")+"\n\n";
-   body+="STATION | FIRST | STANDARD | TOTAL PASSENGERS\n";
-   body+="-----------------------------------------------\n";
-   (t.rows||[]).filter(r=>r.station||r.first!==""||r.standard!=="").forEach(r=>{const first=Number(r.first||0),standard=Number(r.standard||0);body+=(r.station||"")+" | "+first+" | "+standard+" | "+(first+standard)+"\n";});
-   body+="\n";
+   const d=t.date?t.date.split("-").reverse().join("/"):"Not entered";
+   body+="TRAIN "+(i+1)+"\n"+"-".repeat(32)+"\n";
+   body+="Date: "+d+"\nHeadcode(s): "+((t.headcode||"").toUpperCase()||"Not entered")+"\nUnit: "+(t.unitNumber||"Not entered")+"\n";
+   if(t.fullAndStanding)body+="FULL AND STANDING: YES\n";
+   body+="\nSTATION PASSENGER COUNTS\n";
+   const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
+   if(!rows.length) body+="No passenger counts entered.\n";
+   rows.forEach(r=>{
+     const first=Number(r.first||0),standard=Number(r.standard||0),total=first+standard;
+     body+=(r.station||"Station not entered")+"\n  First Class: "+first+"  |  Standard: "+standard+"  |  Total Passengers: "+total+"\n";
+   });
+   const totals=rows.reduce((a,r)=>{a.first+=Number(r.first||0);a.standard+=Number(r.standard||0);return a;},{first:0,standard:0});
+   body+="\nTRAIN TOTALS: First Class "+totals.first+" | Standard "+totals.standard+" | Total Passengers "+(totals.first+totals.standard)+"\n\n";
  });
+ if(notes)body+="REASON / NOTES\n"+"-".repeat(16)+"\n"+notes+"\n\n";
+ body+="Sent from XC Train Manager Staff App.";
  location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
 }
 async function emailPDF(){ return emailCounts(); }

@@ -424,7 +424,7 @@ async function makePDF(){
  trains.forEach((t,i)=>{
    if(i>0)doc.addPage();
    doc.setFillColor(181,18,27);doc.rect(0,0,210,25,"F");
-   doc.setTextColor(255,255,255);doc.setFontSize(15);doc.setFont(undefined,"bold");doc.text("XC STAFF APP",15,11);doc.setFontSize(11);doc.text("PASSENGER COUNT REPORT",15,19);
+   doc.setTextColor(255,255,255);doc.setFontSize(15);doc.setFont(undefined,"bold");doc.text("PASSENGER COUNT REPORT",15,15);
    doc.setTextColor(35,35,35);doc.setFontSize(10);doc.setFont(undefined,"normal");
    const d=t.date?String(t.date).split("-").reverse().join("/"):"Not entered";
    doc.text("DATE: "+d,15,35);doc.text("HEADCODE(s): "+((t.headcode||"").toUpperCase()||"Not entered"),15,42);
@@ -464,7 +464,7 @@ function printPassengerReport(){
  '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:auto;page-break-inside:auto}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere;word-break:normal}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:28%}th:nth-child(2){width:16%}th:nth-child(3){width:16%}th:nth-child(4){width:25%}th:nth-child(5){width:15%}td.total{font-weight:800}td.submitted{text-align:center;font-weight:700}.grand-total th,.grand-total td{font-weight:800;background:#f7f0e0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style></head><body>'+
  '<header class="brand"><img src="'+escReport(logoUrl)+'" alt="CrossCountry"><div class="brand-title">PASSENGER COUNT REPORT</div></header>'+html+
  (notes?'<section class="notes"><h3>REASON / NOTES</h3><p>'+escReport(notes)+'</p></section>':'')+
- '<footer class="footer">Exported from XC Train Manager Staff App</footer></body></html>';
+ '<footer class="footer"></footer></body></html>';
  const win=window.open("","_blank");
  if(!win){show("PDF export was blocked by the browser. Allow pop-ups for this app and try again.");return;}
  win.document.open();win.document.write(report);win.document.close();
@@ -481,27 +481,32 @@ async function emailCounts(){
  const emailHeadcodes=trains.map(t=>(t.headcode||"").trim().toUpperCase()).filter(Boolean);
  const subject="Head Counts for "+(emailHeadcodes.length?emailHeadcodes.join(" "):"HEADCODES")+" for "+emailDateCompact;
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
- let body="XC PASSENGER COUNT REPORT\n"+"=".repeat(27)+"\n\n";
+ let body="PASSENGER COUNT REPORT\n"+"=".repeat(23)+"\n\n";
  trains.forEach((t,i)=>{
    const d=t.date?String(t.date).split("-").reverse().join("/"):"Not entered";
    body+="TRAIN "+(i+1)+"\n"+"-".repeat(32)+"\n";
    body+="DATE: "+d+"\nHEADCODE(s): "+((t.headcode||"").toUpperCase()||"Not entered")+"\nUNIT: "+(t.unitNumber||"Not entered")+"\n";
    if(t.fullAndStanding)body+="FULL AND STANDING: YES\n";
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
-   const widths=[Math.max(7,...rows.map(r=>String(r.station||"Station not entered").length)),10,8,16,9];
-   const pad=(v,n)=>String(v).padEnd(n," ");
-   const line=(a,b,c,d,e)=>"| "+pad(a,widths[0])+" | "+pad(b,widths[1])+" | "+pad(c,widths[2])+" | "+pad(d,widths[3])+" | "+pad(e,widths[4])+" |\n";
+   // Plain-text table for mailto: exports. Use generous column widths so headers
+   // and values remain readable in common email clients that use proportional fonts.
+   const widths=[Math.max(7,...rows.map(r=>Math.min(24,String(r.station||"Station not entered").length))),12,10,18,11];
+   const fit=(v,n)=>{v=String(v??"");return v.length>n?v.slice(0,n-1)+"…":v.padEnd(n," ");};
+   const line=(a,b,c,d,e)=>"| "+fit(a,widths[0])+" | "+fit(b,widths[1])+" | "+fit(c,widths[2])+" | "+fit(d,widths[3])+" | "+fit(e,widths[4])+" |\n";
+   const rule="+"+widths.map(w=>"-".repeat(w+2)).join("+")+"+\n";
    body+="\nSTATION PASSENGER COUNTS\n";
+   body+=rule;
    body+=line("STATION","FIRST CLASS","STANDARD","TOTAL PASSENGERS","SUBMITTED");
-   body+="|"+widths.map(w=>"-".repeat(w+2)).join("|")+"|\n";
+   body+=rule;
    let sumFirst=0,sumStandard=0;
    if(!rows.length)body+=line("No counts entered","","","","");
    rows.forEach(r=>{const first=Number(r.first||0),standard=Number(r.standard||0),total=first+standard;sumFirst+=first;sumStandard+=standard;body+=line(r.station||"Station not entered",first,standard,total,r.submitted?"Yes":"No");});
+   body+=rule;
    body+=line("TRAIN TOTAL",sumFirst,sumStandard,sumFirst+sumStandard,"");
-   body+="\n";
+   body+=rule+"\n";
  });
  if(notes)body+="REASON / NOTES\n"+"-".repeat(16)+"\n"+notes+"\n\n";
- body+="Sent from XC Train Manager Staff App.";
+ 
  location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
 }
 async function emailPDF(){ return emailCounts(); }
@@ -532,7 +537,7 @@ render();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"}).catch(()=>{});
 </script><script>
 function xcGeneratePDF(title){
- const lines=[title,"","XC STAFF APP",""];
+ const lines=[title,""];
  document.querySelectorAll("input,select,textarea").forEach(el=>{
   if(el.value){const l=el.closest(".field")?.querySelector("label")?.innerText||el.name||el.id||"Entry";lines.push(l+": "+el.value)}
  });

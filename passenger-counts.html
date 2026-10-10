@@ -145,20 +145,6 @@ input[type="number"]{
 }
 </style>
 
-<style id="xc-count-submitted-style">
-.count-submitted-wrap{display:flex;align-items:center;gap:9px;margin:12px 0;padding:10px 12px;background:#fff8df;border:1px solid #f5c242;border-radius:10px;font-weight:800}
-.count-submitted-wrap input{width:20px;height:20px;min-height:20px;flex:0 0 auto;accent-color:#b5121b}
-#passengerPrintArea .report-brand{background:#b5121b;color:#fff;padding:14px 16px;border-bottom:5px solid #f5c242;margin-bottom:18px}
-#passengerPrintArea .report-brand img{max-width:160px;max-height:36px;object-fit:contain;display:block;margin-bottom:8px}
-#passengerPrintArea .report-meta{font-size:10pt;color:#555;margin:8px 0 16px}
-#passengerPrintArea table{width:100%;border-collapse:collapse;font-size:10pt}
-#passengerPrintArea th{background:#b5121b;color:#fff;text-align:left;padding:8px;border:1px solid #b5121b;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-#passengerPrintArea td{padding:7px;border:1px solid #ccc}
-#passengerPrintArea tr:nth-child(even) td{background:#f7f7f7}
-@media print{#passengerPrintArea .report-brand{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-</style>
-
-
 <style id="unit-full-standing-styles">
 .full-standing-btn{display:block;width:100%;margin:10px 0 14px;padding:13px 12px;border:2px solid #b5121b;border-radius:10px;background:#fff;color:#b5121b;font-weight:900;font-size:15px;letter-spacing:.02em;cursor:pointer}
 .full-standing-btn.is-active{background:#b5121b;color:#fff;border-color:#f5c242;box-shadow:inset 0 -3px 0 #f5c242}
@@ -210,10 +196,13 @@ input[type="number"]{
 </section>
 
 <main><a class="xc-main-menu" href="index.html">← Main menu</a>
-<div class="passenger-actions"><button onclick="saveCounts()" type="button">💾 Save Locally</button><button onclick="openArchiveCalendar()" type="button">🗓️ Archive Calendar</button></div><section class="train-block"><label>Reason / Notes <span style="font-weight:normal">(optional — any information or why STAR Mobile was not used)</span></label><textarea id="reasonNotes" oninput="reasonNotes=this.value"></textarea></section>
+<div class="passenger-actions"><button onclick="saveCounts()" type="button">💾 Save Locally</button><button onclick="openArchiveCalendar()" type="button">🗓️ Archive Calendar</button></div>
 <div id="trains"></div>
 <div class="passenger-actions"><button onclick="addTrain()" type="button">＋ Add Additional Train</button></div>
-<div id="status"></div></main><script>
+<div id="status"></div>
+
+<section class="train-block"><label>Reason / Notes <span style="font-weight:normal">(optional — any information or why STAR Mobile was not used)</span></label><textarea id="reasonNotes" oninput="reasonNotes=this.value"></textarea></section>
+</main><script>
 const KEY="xc_staff_app_passenger_counts_v3";
 let trains=[];
 let reasonNotes="";
@@ -510,29 +499,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if(original && original.trim()) el.textContent=tidyText(original);
     });
   });
-})();
-</script>
-
-<script id="xc-count-submitted-v160">
-(function(){
-  function addSubmittedCheckboxes(){
-    document.querySelectorAll('.train-block').forEach(function(block, i){
-      if(block.querySelector('.count-submitted')) return;
-      var wrap=document.createElement('label');
-      wrap.className='count-submitted-wrap no-print';
-      var cb=document.createElement('input');
-      cb.type='checkbox'; cb.className='count-submitted'; cb.id='countSubmitted_'+(i+1);
-      cb.setAttribute('aria-label','Count submitted');
-      var text=document.createElement('span'); text.textContent='Count submitted';
-      wrap.appendChild(cb); wrap.appendChild(text);
-      var table=block.querySelector('table');
-      if(table) table.insertAdjacentElement('afterend',wrap); else block.appendChild(wrap);
-    });
-  }
-  document.addEventListener('DOMContentLoaded',addSubmittedCheckboxes);
-  // Support train blocks added dynamically.
-  var observer=new MutationObserver(addSubmittedCheckboxes);
-  observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
 

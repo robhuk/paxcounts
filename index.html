@@ -179,6 +179,51 @@ input.date-dmy{font-variant-numeric:tabular-nums;letter-spacing:.02em}
 <style id="passenger-report-export-styles">
 .count-report-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}.count-report-meta div{border:1px solid #bbb;padding:7px;display:flex;flex-direction:column;gap:3px}.count-report-meta strong{font-size:9pt;color:#b5121b}.count-report-meta span{font-size:11pt}.count-report-block{break-inside:avoid;margin-bottom:20px}.count-report-block h2{font-size:14pt;margin:14px 0 8px}.count-report-block table{width:100%;border-collapse:collapse}.count-report-block th,.count-report-block td{border:1px solid #999;padding:6px;text-align:left}.count-report-block th{background:#b5121b;color:white;-webkit-print-color-adjust:exact;print-color-adjust:exact}.count-report-block td:not(:first-child),.count-report-block th:not(:first-child){text-align:center}.count-report-notes{margin-top:16px;border-top:2px solid #f5c242;padding-top:8px}
 </style>
+<style id="xc-mobile-fit-v1">
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{-webkit-text-size-adjust:100%;}
+main{width:100%;max-width:650px;margin:0 auto;padding:clamp(10px,3.5vw,18px) clamp(10px,3.5vw,16px) 28px}
+header{width:100%;padding:12px clamp(10px,3.5vw,16px)}
+.top{min-width:0;flex-wrap:wrap;gap:8px}
+.logo{max-width:42vw;width:145px;height:auto;max-height:36px}
+.heading{font-size:clamp(19px,5vw,24px);line-height:1.2;overflow-wrap:anywhere}
+.card,.train-block,.archive-calendar-panel{min-width:0;max-width:100%;padding:clamp(10px,3vw,16px)}
+input,select,textarea,button{max-width:100%;min-width:0}
+input,select,textarea{font-size:16px!important}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.passenger-actions{gap:8px}
+.passenger-actions button{min-width:0;flex:1 1 130px}
+.train-block table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
+.train-block th,.train-block td{overflow-wrap:anywhere;word-break:normal}
+.train-block td input:not([type="checkbox"]){min-width:0;width:100%;padding:8px 5px!important;font-size:16px!important}
+.train-block td:first-child input{padding-left:7px!important}
+.train-block input[type="checkbox"]{width:22px;height:22px;min-height:22px;margin:0;accent-color:#b5121b}
+@media(max-width:520px){
+  .train-block{padding:10px;margin:10px 0}
+  .train-block table,.train-block tbody{display:block;width:100%}
+  .train-block thead{display:none}
+  .train-block tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px;gap:8px;padding:10px 0;border-bottom:1px solid #ddd}
+  .train-block tbody td{display:block;min-width:0;border:0;padding:0!important}
+  .train-block tbody td:first-child{grid-column:1/-1}
+  .train-block tbody td:first-child input{font-weight:700}
+  .train-block tbody td:nth-child(2)::before{content:"FIRST CLASS";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
+  .train-block tbody td:nth-child(3)::before{content:"STANDARD";display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px}
+  .train-block tbody td:nth-child(4){display:flex;align-items:end;justify-content:center;padding-bottom:8px!important}
+  .train-block tbody td:nth-child(4)::before{content:"DONE";font-size:9px;font-weight:800;color:#555;margin-right:3px;align-self:center}
+  .train-block tbody td input:not([type="checkbox"]){height:42px;padding:8px 6px!important}
+  .archive-calendar-panel{margin:10px 0;padding:10px}
+  .archive-calendar-head{gap:6px;flex-wrap:wrap}
+  .archive-day{min-width:0}
+  .save-row{flex-wrap:wrap}
+  .save-row button{flex:1 1 120px}
+  .passenger-export-actions{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:360px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .train-block tbody tr{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;gap:5px}
+  .train-block tbody td:nth-child(4)::before{font-size:8px}
+}
+</style>
 </head><body><header class="xc-compact-header"><img alt="XC" class="xc-page-header-logo" src="crosscountry-logo-white.png"/></header>
 <header><div class="heading">👥 Manual Passenger Counts</div></header><div class="main-menu-wrap"></div>
 <section id="archive-calendar-panel" class="archive-calendar-panel" hidden>

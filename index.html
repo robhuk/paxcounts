@@ -16,14 +16,13 @@ button{width:100%;border:0;border-radius:11px;padding:14px;font:inherit;font-wei
 table{width:100%;border-collapse:collapse}th,td{padding:7px 4px;border-bottom:1px solid #ddd;text-align:left}th{font-size:12px}
 @media(max-width:480px){.grid,.actions{grid-template-columns:1fr}}
 .main-menu-wrap{max-width:700px;margin:12px auto 0;padding:0 14px}.main-menu-btn{display:block;text-align:center;text-decoration:none;background:#fff;color:#b5121b;border:1px solid #b5121b;border-radius:10px;padding:11px 14px;font-weight:800;font-size:15px}.save-row{display:flex;align-items:center;gap:10px;margin:0 0 14px}.save-btn{width:auto;background:#b5121b;color:#fff;border:0;border-radius:10px;padding:11px 16px;font-weight:800;font-size:14px}.clear-btn{width:auto;background:#fff;color:#b5121b;border:1px solid #b5121b;border-radius:10px;padding:10px 16px;font-weight:800;font-size:14px}#saveStatus{font-size:13px;color:#555}
-<style>
 .passenger-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .passenger-actions button{flex:1;min-width:140px}
 .train-block{background:#fff;border-radius:14px;padding:14px;margin:12px 0;box-shadow:0 2px 8px #0001}
 .train-block table{width:100%;border-collapse:collapse;margin-top:10px}
 .train-block th,.train-block td{border:1px solid #bbb;padding:6px}
 .train-block input{width:100%;box-sizing:border-box}
-<style>.pdf-action{margin:10px 0}.pdf-action button{width:100%;background:#222;color:#fff;border:0;border-radius:10px;padding:12px;font-weight:800}</style>
+.pdf-action{margin:10px 0}.pdf-action button{width:100%;background:#222;color:#fff;border:0;border-radius:10px;padding:12px;font-weight:800}</style>
 <style id="xc-safe-area">
 html{background:#b5121b}
 body{padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
@@ -103,10 +102,6 @@ textarea{
 
 .count-black{color:#111!important}.count-green{color:#16803c!important;font-weight:600}.count-orange{color:#d66a00!important;font-weight:600}.count-red{color:#c82020!important;font-weight:600}.count-red-bold{color:#c82020!important;font-weight:800!important}
 </style><link href="xc.css" rel="stylesheet"/>
-<style id="globalPageDataControls">
-.global-page-data-controls{position:fixed;top:12px;right:12px;z-index:99999;display:flex;gap:8px}.global-page-data-controls button{width:42px;height:42px;border:0;border-radius:12px;background:#fff;color:#d10a4b;box-shadow:0 2px 10px rgba(0,0,0,.18);font-size:20px;cursor:pointer}.global-page-data-controls button:hover{transform:translateY(-1px)}@media print{.global-page-data-controls{display:none!important}}
-</style>
-
 <style>
 .action-row{
   display:flex;
@@ -209,12 +204,16 @@ input.date-dmy{font-variant-numeric:tabular-nums;letter-spacing:.02em}
 <div class="passenger-actions passenger-export-actions"><button id="passengerGeneratePDF" onclick="printPassengerReport()" type="button">📄 Export Report (PDF)</button><button onclick="emailCounts()" type="button">✉️ Email Report</button></div>
 <div id="status"></div>
 
-<section class="train-block"><label>Reason / Notes <span style="font-weight:normal">(optional — any information or why STAR Mobile was not used)</span></label><textarea id="reasonNotes" oninput="reasonNotes=this.value"></textarea></section>
+<section class="train-block"><label>Reason / Notes <span style="font-weight:normal">(optional — any information or why STAR Mobile was not used)</span></label><textarea id="reasonNotes" oninput="reasonNotes=this.value;persistSilently()"></textarea></section>
 </main><script>
 const KEY="xc_staff_app_passenger_counts_v3";
 let trains=[];
 let reasonNotes="";
-function blank(){return {date:new Date().toISOString().slice(0,10),headcode:"",unitNumber:"",fullAndStanding:false,rows:Array.from({length:10},()=>({station:"",first:"",standard:"",entered:false}))}}
+function localISODate(date=new Date()){
+  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+function blank(){return {date:localISODate(),headcode:"",unitNumber:"",fullAndStanding:false,rows:Array.from({length:10},()=>({station:"",first:"",standard:"",entered:false}))}}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function formatDateDMY(value){
   if(!value)return "";
@@ -230,19 +229,20 @@ function parseDateDMY(value){
 }
 function updateDateDMY(t,value){
   const parsed=parseDateDMY(value);
-  if(parsed)trains[t].date=parsed;
+  if(parsed){trains[t].date=parsed;persistSilently();}
   else show("Enter the date as DD/MM/YYYY, for example 10/10/2026.");
 }
 function formatDateInput(input,t){
   const parsed=parseDateDMY(input.value);
-  if(parsed){trains[t].date=parsed;input.value=formatDateDMY(parsed);}
+  if(parsed){trains[t].date=parsed;input.value=formatDateDMY(parsed);persistSilently();}
   else if(input.value.trim()){show("Enter the date as DD/MM/YYYY, for example 10/10/2026.");input.value=formatDateDMY(trains[t].date);}
 }
 
-function addTrain(){trains.push(blank());render()}
-function update(t,k,v){trains[t][k]=v} function toggleFullStanding(t){trains[t].fullAndStanding=!trains[t].fullAndStanding;render();}
-function updateRow(t,r,k,v){trains[t].rows[r][k]=v}
-function handleCountInput(input,t,r,k){const digits=String(input.value||'').replace(/\D/g,'').slice(0,3);input.value=digits;updateRow(t,r,k,digits);input.className=countClass(k,digits)}
+function addTrain(){trains.push(blank());persistSilently();render()}
+function persistSilently(){try{localStorage.setItem(KEY,JSON.stringify({trains,reasonNotes}));}catch(e){/* Save Locally reports storage failures to the user. */}}
+function update(t,k,v){trains[t][k]=v;persistSilently()} function toggleFullStanding(t){trains[t].fullAndStanding=!trains[t].fullAndStanding;persistSilently();render();}
+function updateRow(t,r,k,v){trains[t].rows[r][k]=v;persistSilently()}
+function handleCountInput(input,t,r,k){const digits=String(input.value||'').replace(/\D/g,'').slice(0,3);input.value=digits;updateRow(t,r,k,digits);input.className=countClass(k,digits);persistSilently()}
 function countClass(type,v){const n=Number(v); if(v===""||Number.isNaN(n)) return ""; if(type==="standard"){return n<100?"count-black":n<=150?"count-green":n<=200?"count-orange":"count-red"} return n<=8?"count-black":n<=15?"count-green":n<=20?"count-orange":n<=25?"count-red":"count-red-bold"}
 function render(){
  const notes=document.getElementById("reasonNotes"); if(notes && notes.value!==reasonNotes) notes.value=reasonNotes;
@@ -262,7 +262,10 @@ function render(){
  </tr>`).join("")}</tbody></table>
  </section>`).join("")
 }
-function saveCounts(){localStorage.setItem(KEY,JSON.stringify({trains,reasonNotes}));show("Passenger counts saved locally.")}
+function saveCounts(){
+  try{localStorage.setItem(KEY,JSON.stringify({trains,reasonNotes}));show("Passenger counts saved locally.");return true;}
+  catch(e){show("Unable to save locally. Check browser storage settings or available space.");return false;}
+}
 
 
 let archiveViewDate = new Date();
@@ -275,7 +278,7 @@ function archiveCounts(){
   const invalid=trains.find(t=>(t.unitNumber||"")!==""&&!/^\d{6}$/.test(t.unitNumber));
   if(invalid){show("Unit Number must be exactly six digits.");return;}
   const archiveKey="xc_passenger_counts_archive_v1";
-  const day=(trains[0]&&trains[0].date)||new Date().toISOString().slice(0,10);
+  const day=(trains[0]&&trains[0].date)||localISODate();
   const archive=getArchiveItems();
   archive.unshift({id:Date.now().toString(),archiveDate:day,archivedAt:new Date().toISOString(),trains:JSON.parse(JSON.stringify(trains)),reasonNotes:typeof reasonNotes==="undefined"?"":reasonNotes});
   setArchiveItems(archive);
@@ -288,7 +291,7 @@ function openArchiveCalendar(){
   const panel=document.getElementById("archive-calendar-panel");
   if(!panel)return;
   panel.hidden=false;
-  if(!archiveSelectedDate)archiveSelectedDate=new Date().toISOString().slice(0,10);
+  if(!archiveSelectedDate)archiveSelectedDate=localISODate();
   const parts=archiveSelectedDate.split("-").map(Number);
   if(parts.length===3&&parts[0])archiveViewDate=new Date(parts[0],parts[1]-1,1);
   renderArchiveCalendar();
@@ -427,7 +430,28 @@ async function emailCounts(){
 }
 async function emailPDF(){ return emailCounts(); }
 
-try{trains=JSON.parse(localStorage.getItem(KEY)||"[]");if(!trains.length)trains=[blank()]}catch(e){trains=[blank()]}
+try{
+  const saved=JSON.parse(localStorage.getItem(KEY)||"null");
+  if(Array.isArray(saved)){
+    trains=saved; // Legacy format from earlier app versions.
+  }else if(saved&&typeof saved==="object"){
+    trains=Array.isArray(saved.trains)?saved.trains:[];
+    reasonNotes=typeof saved.reasonNotes==="string"?saved.reasonNotes:"";
+  }
+  trains=trains.map(t=>({
+    date:typeof t.date==="string"?t.date:localISODate(),
+    headcode:String(t.headcode||""),
+    unitNumber:String(t.unitNumber||"").replace(/\D/g,"").slice(0,6),
+    fullAndStanding:!!t.fullAndStanding,
+    rows:(Array.isArray(t.rows)?t.rows:[]).map(r=>({
+      station:String(r.station||""),
+      first:String(r.first??"").replace(/\D/g,"").slice(0,3),
+      standard:String(r.standard??"").replace(/\D/g,"").slice(0,3),
+      entered:!!r.entered
+    })).concat(Array.from({length:Math.max(0,10-(Array.isArray(t.rows)?t.rows.length:0))},()=>({station:"",first:"",standard:"",entered:false})))
+  }));
+  if(!trains.length)trains=[blank()];
+}catch(e){trains=[blank()];reasonNotes="";}
 render();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script><script>
@@ -465,20 +489,6 @@ document.addEventListener("click",function(e){
  if(typeof window[fn]==="function"){e.preventDefault();window[fn](e);}
 });
 </script><script src="xc-common.js"></script>
-<script>
-(function(){
-  const key='xc_page_data_'+location.pathname.split('/').pop();
-  function fields(){return [...document.querySelectorAll('input,textarea,select')].filter(e=>e.type!=='button'&&e.type!=='submit'&&e.type!=='reset');}
-  function save(){const data={};fields().forEach((e,i)=>{const k=e.id||e.name||('field_'+i);data[k]={v:e.type==='checkbox'?e.checked:e.value,t:e.type};});localStorage.setItem(key,JSON.stringify(data));alert('Data saved.');}
-  function clear(){if(!confirm('Are you sure you want to clear all data on this page?'))return;fields().forEach(e=>{if(e.type==='checkbox'||e.type==='radio')e.checked=false;else if(e.type!=='hidden')e.value='';e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));});localStorage.removeItem(key);}
-  function restore(){try{const data=JSON.parse(localStorage.getItem(key)||'{}');fields().forEach((e,i)=>{const k=e.id||e.name||('field_'+i),d=data[k];if(!d)return;if(e.type==='checkbox')e.checked=!!d.v;else e.value=d.v;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));});}catch(_){}}
-  document.addEventListener('DOMContentLoaded',()=>{
-    const bar=document.createElement('div');bar.className='global-page-data-controls';bar.innerHTML='<button type="button" aria-label="Save data" title="Save data">💾</button><button type="button" aria-label="Clear data" title="Clear data">🗑️</button>';document.body.appendChild(bar);
-    bar.children[0].addEventListener('click',save);bar.children[1].addEventListener('click',clear);restore();
-  });
-})();
-</script>
-
 <script id="passenger-count-validation-v151">
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('input[type="number"]').forEach(function (input) {

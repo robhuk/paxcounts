@@ -9,10 +9,10 @@
   "background_color": "#f4f4f4",
   "icons": [
     {
-      "src": "icons/passengers.svg",
+      "src": "./icons/passengers.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }

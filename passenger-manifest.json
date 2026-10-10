@@ -1,7 +1,7 @@
 {
   "name": "XC Passenger Count App",
   "short_name": "Passenger Counts",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

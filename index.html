@@ -474,39 +474,23 @@ function printPassengerReport(){
 }
 async function emailCounts(){
  saveCounts();
- const primary=trains[0]||{};
- const emailDateRaw=primary.date||localISODate();
- const emailDateParts=String(emailDateRaw).match(/^(\d{4})-(\d{2})-(\d{2})$/);
- const emailDateCompact=emailDateParts?(emailDateParts[3]+emailDateParts[2]+emailDateParts[1]):new Date().toLocaleDateString("en-GB").replace(/\//g,"");
  const emailHeadcodes=trains.map(t=>(t.headcode||"").trim().toUpperCase()).filter(Boolean);
- const subject="Head Counts for "+(emailHeadcodes.length?emailHeadcodes.join(" "):"HEADCODES")+" for "+emailDateCompact;
+ const subject="Pax Counts for "+(emailHeadcodes.length?emailHeadcodes.join(" "):"HEADCODES");
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
- let body="PASSENGER COUNT REPORT\n"+"=".repeat(23)+"\n\n";
- trains.forEach((t,i)=>{
-   const d=t.date?String(t.date).split("-").reverse().join("/"):"Not entered";
-   body+="TRAIN "+(i+1)+"\n"+"-".repeat(32)+"\n";
-   body+="DATE: "+d+"\nHEADCODE(s): "+((t.headcode||"").toUpperCase()||"Not entered")+"\nUNIT: "+(t.unitNumber||"Not entered")+"\n";
-   if(t.fullAndStanding)body+="FULL AND STANDING: YES\n";
+ let body="REASON / NOTES\n"+(notes||"None entered")+"\n\n";
+ trains.forEach((t)=>{
+   const headcode=(t.headcode||"").trim().toUpperCase()||"HEACODE";
+   body+="TRAIN: "+headcode;
+   if(t.fullAndStanding) body+=" - FULL AND STANDING";
+   body+="\n";
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
-   // Plain-text table for mailto: exports. Use generous column widths so headers
-   // and values remain readable in common email clients that use proportional fonts.
-   const widths=[Math.max(7,...rows.map(r=>Math.min(24,String(r.station||"Station not entered").length))),12,10,18,11];
-   const fit=(v,n)=>{v=String(v??"");return v.length>n?v.slice(0,n-1)+"…":v.padEnd(n," ");};
-   const line=(a,b,c,d,e)=>"| "+fit(a,widths[0])+" | "+fit(b,widths[1])+" | "+fit(c,widths[2])+" | "+fit(d,widths[3])+" | "+fit(e,widths[4])+" |\n";
-   const rule="+"+widths.map(w=>"-".repeat(w+2)).join("+")+"+\n";
-   body+="\nSTATION PASSENGER COUNTS\n";
-   body+=rule;
-   body+=line("STATION","FIRST CLASS","STANDARD","TOTAL PASSENGERS","SUBMITTED");
-   body+=rule;
-   let sumFirst=0,sumStandard=0;
-   if(!rows.length)body+=line("No counts entered","","","","");
-   rows.forEach(r=>{const first=Number(r.first||0),standard=Number(r.standard||0),total=first+standard;sumFirst+=first;sumStandard+=standard;body+=line(r.station||"Station not entered",first,standard,total,r.submitted?"Yes":"No");});
-   body+=rule;
-   body+=line("TRAIN TOTAL",sumFirst,sumStandard,sumFirst+sumStandard,"");
-   body+=rule+"\n";
+   rows.forEach(r=>{
+     const first=Number(r.first||0), standard=Number(r.standard||0), total=first+standard;
+     body+=(String(r.station||"Station not entered").trim())+": First Class: "+first+" / Standard: "+standard+" [Total: "+total+"]";
+     body+="\n";
+   });
+   body+="\n";
  });
- if(notes)body+="REASON / NOTES\n"+"-".repeat(16)+"\n"+notes+"\n\n";
- 
  location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
 }
 async function emailPDF(){ return emailCounts(); }

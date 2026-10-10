@@ -1,0 +1,162 @@
+
+(function(){
+"use strict";
+function pageTitle(){
+  var t=(document.querySelector("header:not(.xc-compact-header) .heading")||document.querySelector(".header .title")||document.querySelector(".hdr")||document.querySelector("h1"))?.innerText || document.title || "XC Staff App";
+  return t.replace(/\s+/g," ").trim().replace(/^[^\w£]+/,"");
+}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function getReportRoot(){
+  return document.querySelector("#report:not(.hidden)") ||
+         document.querySelector("#tir-report-print-v116:not(.hidden)") ||
+         document.querySelector("[data-report-output]:not(.hidden)") ||
+         document.querySelector(".generated-report:not(.hidden)");
+}
+function textFromForm(){
+  var root=getReportRoot();
+  if(root && root.innerText.trim()) return root.innerText.trim();
+  var lines=[];
+  document.querySelectorAll("main input,main select,main textarea").forEach(function(el){
+    if(el.closest(".xc-actions")) return;
+    var val=(el.value||"").trim();
+    if(!val) return;
+    var label="";
+    if(el.id){
+      var l=document.querySelector('label[for="'+CSS.escape(el.id)+'"]');
+      if(l) label=l.innerText.trim();
+    }
+    if(!label && el.closest(".field")) label=(el.closest(".field").querySelector("label")||{}).innerText||"";
+    if(!label) label=el.getAttribute("aria-label")||el.name||el.id||"Field";
+    lines.push(label.replace(/\s+/g," ")+": "+val);
+  });
+  if(lines.length) return lines.join("\n");
+  var main=document.querySelector("main");
+  return main ? main.innerText.replace(/\n{3,}/g,"\n\n").trim() : document.body.innerText.trim();
+}
+function copyText(){
+  var text=textFromForm();
+  if(!text){setStatus("Nothing to copy.");return;}
+  navigator.clipboard.writeText(text).then(function(){setStatus("Copied to clipboard.");}).catch(function(){
+    var ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");setStatus("Copied to clipboard.");}catch(e){setStatus("Copy failed — please select the text manually.");}
+    ta.remove();
+  });
+}
+function emailText(){
+  var text=textFromForm();
+  if(!text){setStatus("Nothing to email.");return;}
+  var subject="XC Staff App — "+pageTitle();
+  window.location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(text);
+}
+function printPdf(){
+  var isTir=/tir-builder\\.html$/i.test(location.pathname);
+  var tir=document.querySelector("#report");
+  if(isTir && (!tir || !tir.innerText.trim() || tir.classList.contains("hidden"))){
+    setStatus("Generate the TIR report first, then print / save it as PDF.");
+    return;
+  }
+  var content = isTir && tir ? tir.innerHTML : esc(textFromForm()).replace(/\\n/g,"<br>");
+  if(!content || !String(content).replace(/<[^>]*>/g,"").trim()){
+    setStatus("Complete the form or generate the report first.");
+    return;
+  }
+  var sheet=document.createElement("section");
+  sheet.className="xc-print-sheet";
+  sheet.innerHTML='<div class="xc-print-brand"><img src="crosscountry-logo-transparent.png" alt="CrossCountry"><div><strong>'+esc(pageTitle())+'</strong><small>TRAIN MANAGER REPORT</small></div></div><div class="xc-print-content">'+content+'</div><footer>Exported from XC Train Manager Staff App · Generated '+esc(new Date().toLocaleString("en-GB"))+'</footer>';
+  var style=document.createElement("style");
+  style.id="xc-branded-report-print-style";
+  style.textContent='.xc-print-sheet{display:none}.xc-print-brand{display:flex;align-items:center;gap:18px;background:#b5121b;color:#fff;border-bottom:6px solid #f5c242;padding:16px 18px;margin-bottom:18px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.xc-print-brand img{max-width:165px;max-height:42px;object-fit:contain}.xc-print-brand strong{font-size:19pt}.xc-print-brand small{display:block;font-size:9pt;letter-spacing:1px;margin-top:4px}.xc-print-content{font:11pt/1.5 Arial,sans-serif;white-space:normal}.xc-print-content table{width:100%;border-collapse:collapse}.xc-print-content th{background:#b5121b;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact}.xc-print-content td{border:1px solid #ccc;padding:7px}.xc-print-sheet footer{border-top:2px solid #f5c242;margin-top:24px;padding-top:8px;font-size:8pt;color:#555}@media print{body>*{display:none!important}body>.xc-print-sheet{display:block!important;position:static!important;color:#111!important;background:#fff!important;padding:0!important;margin:0!important;max-width:none!important}body>.xc-print-sheet *{visibility:visible!important}@page{size:A4;margin:14mm}}';
+  document.head.appendChild(style);
+  document.body.appendChild(sheet);
+  setStatus("Opening branded report — choose “Save as PDF”.");
+  var cleanup=function(){sheet.remove();style.remove();window.removeEventListener("afterprint",cleanup);};
+  window.addEventListener("afterprint",cleanup);
+  setTimeout(function(){window.print();setTimeout(cleanup,1200);},80);
+}
+function shareEmail(){emailText();}
+function setStatus(msg){
+  var el=document.querySelector(".xc-action-status"); if(el) el.textContent=msg;
+}
+
+function storageKey(){return "xc-app-page-data:"+(location.pathname.split("/").pop()||"index.html").toLowerCase();}
+function formFields(){return Array.prototype.slice.call(document.querySelectorAll("main input, main select, main textarea"));}
+function fieldKey(el,i){return el.getAttribute("data-xc-save-key")||el.id||el.name||((el.type||el.tagName)+":"+i);}
+function savePageData(){
+  var data={};
+  formFields().forEach(function(el,i){
+    if(el.type==="file" || el.closest(".xc-actions") || el.closest(".xc-page-tools")) return;
+    var k=fieldKey(el,i);
+    data[k]=el.type==="checkbox"||el.type==="radio" ? !!el.checked : el.value;
+  });
+  try{localStorage.setItem(storageKey(),JSON.stringify(data));setPageToolStatus("Saved in this app.");}
+  catch(e){setPageToolStatus("Could not save this page.");}
+}
+function restorePageData(){
+  var raw;try{raw=localStorage.getItem(storageKey());}catch(e){return;}
+  if(!raw)return;
+  var data;try{data=JSON.parse(raw);}catch(e){return;}
+  formFields().forEach(function(el,i){
+    var k=fieldKey(el,i); if(!(k in data))return;
+    if(el.type==="checkbox"||el.type==="radio")el.checked=!!data[k]; else el.value=data[k];
+    el.dispatchEvent(new Event("input",{bubbles:true})); el.dispatchEvent(new Event("change",{bubbles:true}));
+  });
+}
+function clearPageData(){
+  if(!confirm("Are you sure you want to clear all saved data on this page?"))return;
+  try{localStorage.removeItem(storageKey());}catch(e){}
+  var forms=document.querySelectorAll("main form"); forms.forEach(function(f){try{f.reset();}catch(e){}});
+  formFields().forEach(function(el){
+    if(el.type==="checkbox"||el.type==="radio")el.checked=false;
+    else if(el.type!=="button"&&el.type!=="submit"&&el.type!=="file")el.value="";
+    el.dispatchEvent(new Event("input",{bubbles:true})); el.dispatchEvent(new Event("change",{bubbles:true}));
+  });
+  setPageToolStatus("Saved data cleared.");
+}
+function setPageToolStatus(msg){var e=document.querySelector(".xc-page-tool-status");if(e){e.textContent=msg;setTimeout(function(){if(e.textContent===msg)e.textContent="";},2200);}}
+function addSaveClearTools(){
+  var noTools=["index.html","commission-calculator.html","delay-repay.html","help.html"];
+  var current=(location.pathname.split("/").pop()||"index.html").toLowerCase();
+  if(noTools.indexOf(current)!==-1 || document.querySelector(".xc-page-tools"))return;
+  var tools=document.createElement("div");tools.className="xc-page-tools";tools.innerHTML='<button type="button" class="xc-save-page" aria-label="Save page data" title="Save page data">💾</button><button type="button" class="xc-clear-page" aria-label="Clear page data" title="Clear page data">🗑️</button><span class="xc-page-tool-status" aria-live="polite"></span>';
+  var header=document.querySelector("header");
+  if(header){header.appendChild(tools);}else{document.body.insertBefore(tools,document.body.firstChild);}
+  tools.querySelector(".xc-save-page").addEventListener("click",savePageData);
+  tools.querySelector(".xc-clear-page").addEventListener("click",clearPageData);
+  restorePageData();
+}
+
+function addActions(){
+  var noStandardActions = ["btp-61016.html","commission-calculator.html","delay-repay.html","help.html"];
+  var currentPage = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  if(noStandardActions.indexOf(currentPage) !== -1){
+    // These utility pages do not support PDF/print output. Remove any
+    // legacy/generated PDF controls left behind by older page scripts.
+    document.querySelectorAll('.pdf-action, #generatePDF, #pdf, #pdfbtn, button.pdf, button[data-action="pdf"]').forEach(function(el){el.remove();});
+    document.querySelectorAll('button, a').forEach(function(el){
+      var txt=(el.innerText||el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(/generate\s+pdf|print\s*\/\s*save\s+pdf|save\s+pdf|export\s+pdf/.test(txt)) el.remove();
+    });
+    return;
+  }
+  if(location.pathname.endsWith("index.html") || document.body.classList.contains("xc-home")) return;
+  if(document.querySelector(".xc-actions")) return;
+  var bar=document.createElement("div");bar.className="xc-actions";bar.setAttribute("data-xc-actions","true");
+  bar.innerHTML='<button type="button" class="xc-print">🖨️ Print / Save PDF</button><button type="button" class="xc-copy">📋 Copy to Clipboard</button><button type="button" class="xc-email">✉️ Share via Email</button><div class="xc-action-status" aria-live="polite"></div>';
+  var main=document.querySelector("main");
+  var menu=document.querySelector(".xc-main-menu,.main-menu,.menu,.main-menu-btn");
+  if(menu && menu.parentNode){menu.parentNode.insertBefore(bar,menu.nextSibling);}
+  else if(main){main.insertBefore(bar,main.firstChild);}
+  else document.body.insertBefore(bar,document.body.firstChild);
+  bar.querySelector(".xc-print").addEventListener("click",printPdf);
+  bar.querySelector(".xc-copy").addEventListener("click",copyText);
+  bar.querySelector(".xc-email").addEventListener("click",emailText);
+}
+function addFooter(){
+  if(document.querySelector(".xc-page-footer") || location.pathname.endsWith("index.html")) return;
+  var f=document.createElement("div");f.className="xc-page-footer";
+  f.innerHTML='<strong>XC Staff App</strong> · CrossCountry Train Manager tools';
+  document.body.appendChild(f);
+}
+document.addEventListener("DOMContentLoaded",function(){addSaveClearTools();addActions();addFooter();});
+window.XCApp={pageTitle:pageTitle,textFromForm:textFromForm,copyText:copyText,emailText:emailText,printPdf:printPdf,savePageData:savePageData,clearPageData:clearPageData};
+})();

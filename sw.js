@@ -1,5 +1,5 @@
 /* XC Passenger Count PWA — app-scoped offline cache */
-const CACHE_NAME = "xc-passenger-counts-v11";
+const CACHE_NAME = "xc-passenger-counts-v-exportfix-20261010";
 const CACHE_PREFIX = "xc-passenger-counts-";
 const CORE = [
   "./index.html",

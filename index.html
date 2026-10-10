@@ -426,14 +426,18 @@ async function makePDF(){
    doc.setFillColor(181,18,27);doc.rect(0,0,210,25,"F");
    doc.setTextColor(255,255,255);doc.setFontSize(15);doc.setFont(undefined,"bold");doc.text("XC STAFF APP",15,11);doc.setFontSize(11);doc.text("PASSENGER COUNT REPORT",15,19);
    doc.setTextColor(35,35,35);doc.setFontSize(10);doc.setFont(undefined,"normal");
-   const d=t.date?String(t.date).split("-").reverse().join("/"):"";
-   doc.text("DATE: "+d,15,35);doc.text("HEADCODE(s): "+(t.headcode||"").toUpperCase(),15,42);
-   doc.text("UNIT: "+(t.unitNumber||""),15,49);if(t.fullAndStanding)doc.text("FULL AND STANDING: Yes",110,49);
-   const rows=(t.rows||[]).filter(r=>r.station||r.first!==""||r.standard!=="").map(r=>{
-     const first=Number(r.first||0),standard=Number(r.standard||0);return [r.station||"",String(first),String(standard),String(first+standard)];
+   const d=t.date?String(t.date).split("-").reverse().join("/"):"Not entered";
+   doc.text("DATE: "+d,15,35);doc.text("HEADCODE(s): "+((t.headcode||"").toUpperCase()||"Not entered"),15,42);
+   doc.text("UNIT: "+(t.unitNumber||"Not entered"),15,49);if(t.fullAndStanding)doc.text("FULL AND STANDING: Yes",110,49);
+   const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="").map(r=>{
+     const first=Number(r.first||0),standard=Number(r.standard||0);return [r.station||"",String(first),String(standard),String(first+standard),r.submitted?"Yes":"No"];
    });
-   doc.autoTable({startY:57,head:[["STATION","FIRST","STANDARD","TOTAL PASSENGERS"]],body:rows.length?rows:[["","","",""]],theme:"grid",margin:{left:15,right:15,bottom:28},styles:{font:"helvetica",fontSize:9,cellPadding:3,lineColor:[205,205,205],lineWidth:.25,textColor:[35,35,35],valign:"middle"},headStyles:{fillColor:[181,18,27],textColor:[255,255,255],fontStyle:"bold",fontSize:9},alternateRowStyles:{fillColor:[248,248,248]},columnStyles:{0:{cellWidth:72},1:{cellWidth:28,halign:"center"},2:{cellWidth:32,halign:"center"},3:{cellWidth:48,halign:"center"}}});
+   const totals=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="").reduce((a,r)=>{a.first+=Number(r.first||0);a.standard+=Number(r.standard||0);return a;},{first:0,standard:0});
+   if(rows.length)rows.push(["TRAIN TOTAL",String(totals.first),String(totals.standard),String(totals.first+totals.standard),""]);
+   doc.autoTable({startY:57,head:[["STATION","FIRST CLASS","STANDARD","TOTAL PASSENGERS","SUBMITTED"]],body:rows.length?rows:[["No passenger counts entered","","","",""]],theme:"grid",margin:{left:12,right:12,bottom:25},styles:{font:"helvetica",fontSize:8,cellPadding:2.5,lineColor:[205,205,205],lineWidth:.25,textColor:[35,35,35],valign:"middle",overflow:"linebreak"},headStyles:{fillColor:[181,18,27],textColor:[255,255,255],fontStyle:"bold",fontSize:7.5},alternateRowStyles:{fillColor:[248,248,248]},columnStyles:{0:{cellWidth:51},1:{cellWidth:29,halign:"center"},2:{cellWidth:29,halign:"center"},3:{cellWidth:43,halign:"center"},4:{cellWidth:31,halign:"center"}}});
  });
+ const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
+ if(notes){let y=doc.lastAutoTable?.finalY||57;if(y>245){doc.addPage();y=20;}else y+=9;doc.setTextColor(181,18,27);doc.setFontSize(10);doc.setFont(undefined,"bold");doc.text("REASON / NOTES",15,y);doc.setTextColor(35,35,35);doc.setFontSize(9);doc.setFont(undefined,"normal");const lines=doc.splitTextToSize(notes,180);doc.text(lines,15,y+6);}
  xcAddPdfFooters(doc);return doc.output("blob");
 }
 async function generatePDF(){try{let blob=await makePDF();let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="XC-Passenger-Counts.pdf";a.click();show("PDF generated.")}catch(e){show("")}}
@@ -445,19 +449,19 @@ function printPassengerReport(){
  trains.forEach((t,i)=>{
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
    let sumFirst=0,sumStandard=0;
-   const trs=rows.map(r=>{const first=Number(r.first||0),standard=Number(r.standard||0);sumFirst+=first;sumStandard+=standard;return '<tr><td>'+escReport(r.station||"")+'</td><td class="num">'+first+'</td><td class="num">'+standard+'</td><td class="num total">'+(first+standard)+'</td></tr>';}).join("");
-   const totalRow=rows.length?'<tr class="grand-total"><th scope="row">TRAIN TOTAL</th><td class="num">'+sumFirst+'</td><td class="num">'+sumStandard+'</td><td class="num">'+(sumFirst+sumStandard)+'</td></tr>':'';
+   const trs=rows.map(r=>{const first=Number(r.first||0),standard=Number(r.standard||0);sumFirst+=first;sumStandard+=standard;return '<tr><td>'+escReport(r.station||"")+'</td><td class="num">'+first+'</td><td class="num">'+standard+'</td><td class="num total">'+(first+standard)+'</td><td class="submitted">'+(r.submitted?'Yes':'No')+'</td></tr>';}).join("");
+   const totalRow=rows.length?'<tr class="grand-total"><th scope="row">TRAIN TOTAL</th><td class="num">'+sumFirst+'</td><td class="num">'+sumStandard+'</td><td class="num">'+(sumFirst+sumStandard)+'</td><td></td></tr>':'';
    html+='<section class="train"><h2>TRAIN '+(i+1)+'</h2><div class="meta">'+
      '<div><strong>DATE</strong><span>'+escReport(dmyReport(t.date))+'</span></div>'+ 
      '<div><strong>HEADCODE(s)</strong><span>'+escReport((t.headcode||"").toUpperCase())+'</span></div>'+ 
      '<div><strong>UNIT</strong><span>'+escReport(t.unitNumber||"")+'</span></div>'+ 
      (t.fullAndStanding?'<div><strong>FULL AND STANDING</strong><span>Yes</span></div>':'')+'</div>'+ 
-     '<table class="passenger-count-table"><thead><tr><th>STATION</th><th>FIRST</th><th>STANDARD</th><th>TOTAL PASSENGERS</th></tr></thead><tbody>'+(trs||'<tr><td colspan="4">No passenger counts entered</td></tr>')+totalRow+'</tbody></table></section>';
+     '<table class="passenger-count-table"><thead><tr><th>STATION</th><th>FIRST CLASS</th><th>STANDARD</th><th>TOTAL PASSENGERS</th><th>SUBMITTED</th></tr></thead><tbody>'+(trs||'<tr><td colspan="5">No passenger counts entered</td></tr>')+totalRow+'</tbody></table></section>';
  });
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
  const logoUrl=new URL("crosscountry-logo-white.png",window.location.href).href;
  const report='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XC Passenger Count Report</title><style>'+
- '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:auto;page-break-inside:auto}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere;word-break:normal}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:38%}th:nth-child(2){width:14%}th:nth-child(3){width:18%}th:nth-child(4){width:30%}td.total{font-weight:800}.grand-total th,.grand-total td{font-weight:800;background:#f7f0e0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style></head><body>'+
+ '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:auto;page-break-inside:auto}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere;word-break:normal}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:28%}th:nth-child(2){width:16%}th:nth-child(3){width:16%}th:nth-child(4){width:25%}th:nth-child(5){width:15%}td.total{font-weight:800}td.submitted{text-align:center;font-weight:700}.grand-total th,.grand-total td{font-weight:800;background:#f7f0e0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style></head><body>'+
  '<header class="brand"><img src="'+escReport(logoUrl)+'" alt="CrossCountry"><div class="brand-title">PASSENGER COUNT REPORT</div></header>'+html+
  (notes?'<section class="notes"><h3>REASON / NOTES</h3><p>'+escReport(notes)+'</p></section>':'')+
  '<footer class="footer">Exported from XC Train Manager Staff App</footer></body></html>';
@@ -471,26 +475,30 @@ function printPassengerReport(){
 async function emailCounts(){
  saveCounts();
  const primary=trains[0]||{};
- const emailDate=primary.date?primary.date.split("-").reverse().join("/"):new Date().toLocaleDateString("en-GB");
- const emailHeadcodes=trains.map(t=>(t.headcode||"").trim()).filter(Boolean);
- const subject="Passenger Counts — "+(emailHeadcodes.length?emailHeadcodes.join(" "):"Headcode not entered")+" — "+emailDate;
+ const emailDateRaw=primary.date||localISODate();
+ const emailDateParts=String(emailDateRaw).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+ const emailDateCompact=emailDateParts?(emailDateParts[3]+emailDateParts[2]+emailDateParts[1]):new Date().toLocaleDateString("en-GB").replace(/\//g,"");
+ const emailHeadcodes=trains.map(t=>(t.headcode||"").trim().toUpperCase()).filter(Boolean);
+ const subject="Head Counts for "+(emailHeadcodes.length?emailHeadcodes.join(" "):"HEADCODES")+" for "+emailDateCompact;
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
- let body="PASSENGER COUNT REPORT\n"+"=".repeat(23)+"\n\n";
- body+="Please find the passenger counts below.\n\n";
+ let body="XC PASSENGER COUNT REPORT\n"+"=".repeat(27)+"\n\n";
  trains.forEach((t,i)=>{
-   const d=t.date?t.date.split("-").reverse().join("/"):"Not entered";
+   const d=t.date?String(t.date).split("-").reverse().join("/"):"Not entered";
    body+="TRAIN "+(i+1)+"\n"+"-".repeat(32)+"\n";
-   body+="Date: "+d+"\nHeadcode(s): "+((t.headcode||"").toUpperCase()||"Not entered")+"\nUnit: "+(t.unitNumber||"Not entered")+"\n";
+   body+="DATE: "+d+"\nHEADCODE(s): "+((t.headcode||"").toUpperCase()||"Not entered")+"\nUNIT: "+(t.unitNumber||"Not entered")+"\n";
    if(t.fullAndStanding)body+="FULL AND STANDING: YES\n";
-   body+="\nSTATION PASSENGER COUNTS\n";
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
-   if(!rows.length) body+="No passenger counts entered.\n";
-   rows.forEach(r=>{
-     const first=Number(r.first||0),standard=Number(r.standard||0),total=first+standard;
-     body+=(r.station||"Station not entered")+"\n  First Class: "+first+"  |  Standard: "+standard+"  |  Total Passengers: "+total+"\n";
-   });
-   const totals=rows.reduce((a,r)=>{a.first+=Number(r.first||0);a.standard+=Number(r.standard||0);return a;},{first:0,standard:0});
-   body+="\nTRAIN TOTALS: First Class "+totals.first+" | Standard "+totals.standard+" | Total Passengers "+(totals.first+totals.standard)+"\n\n";
+   const widths=[Math.max(7,...rows.map(r=>String(r.station||"Station not entered").length)),10,8,16,9];
+   const pad=(v,n)=>String(v).padEnd(n," ");
+   const line=(a,b,c,d,e)=>"| "+pad(a,widths[0])+" | "+pad(b,widths[1])+" | "+pad(c,widths[2])+" | "+pad(d,widths[3])+" | "+pad(e,widths[4])+" |\n";
+   body+="\nSTATION PASSENGER COUNTS\n";
+   body+=line("STATION","FIRST CLASS","STANDARD","TOTAL PASSENGERS","SUBMITTED");
+   body+="|"+widths.map(w=>"-".repeat(w+2)).join("|")+"|\n";
+   let sumFirst=0,sumStandard=0;
+   if(!rows.length)body+=line("No counts entered","","","","");
+   rows.forEach(r=>{const first=Number(r.first||0),standard=Number(r.standard||0),total=first+standard;sumFirst+=first;sumStandard+=standard;body+=line(r.station||"Station not entered",first,standard,total,r.submitted?"Yes":"No");});
+   body+=line("TRAIN TOTAL",sumFirst,sumStandard,sumFirst+sumStandard,"");
+   body+="\n";
  });
  if(notes)body+="REASON / NOTES\n"+"-".repeat(16)+"\n"+notes+"\n\n";
  body+="Sent from XC Train Manager Staff App.";

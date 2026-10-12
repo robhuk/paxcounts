@@ -336,6 +336,27 @@ input,select,textarea{font-size:16px!important}
   .train-block td input:not([type="checkbox"]) { font-size:12px !important; }
 }
 </style>
+<style id="passenger-mobile-table-restored-v4">
+/* Restore a usable editable five-column passenger count table on phones. */
+.train-block{min-width:0!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;}
+.train-block table{width:100%!important;min-width:610px!important;table-layout:fixed!important;border-collapse:collapse!important;margin-top:10px!important;}
+.train-block th,.train-block td{box-sizing:border-box!important;overflow-wrap:normal!important;word-break:normal!important;vertical-align:middle!important;padding:7px 5px!important;}
+.train-block th{font-size:12px!important;line-height:1.25!important;white-space:normal!important;text-align:center!important;}
+.train-block th:first-child,.train-block td:first-child{width:29%!important;text-align:left!important;}
+.train-block th:nth-child(2),.train-block td:nth-child(2){width:14%!important;}
+.train-block th:nth-child(3),.train-block td:nth-child(3){width:17%!important;}
+.train-block th:nth-child(4),.train-block td:nth-child(4){width:20%!important;}
+.train-block th:nth-child(5),.train-block td:nth-child(5){width:20%!important;text-align:center!important;}
+.train-block thead{display:table-header-group!important;}
+.train-block table,.train-block tbody{display:table!important;max-width:none!important;}
+.train-block tbody tr{display:table-row!important;width:auto!important;padding:0!important;border:0!important;}
+.train-block tbody td{display:table-cell!important;min-width:0!important;}
+.train-block tbody td::before{content:none!important;display:none!important;}
+.train-block td input:not([type="checkbox"]){display:block!important;width:100%!important;min-width:0!important;height:42px!important;padding:7px 6px!important;font-size:16px!important;border-radius:7px!important;}
+.train-block td:first-child input{min-width:145px!important;}
+.train-block input[type="checkbox"]{display:block!important;width:23px!important;height:23px!important;min-height:23px!important;margin:0 auto!important;}
+@media(max-width:520px){.train-block{padding:8px!important;overflow-x:auto!important;}.train-block table{min-width:610px!important;}.train-block th{font-size:12px!important}.train-block td{font-size:14px!important}}
+</style>
 </head><body><header class="xc-compact-header"><img alt="XC" class="xc-page-header-logo" src="crosscountry-logo-white.png"/></header>
 <header><div class="heading">👥 Manual Passenger Counts</div></header><div class="main-menu-wrap"></div>
 <section id="archive-calendar-panel" class="archive-calendar-panel" hidden>

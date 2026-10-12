@@ -491,17 +491,27 @@ async function emailCounts(){
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
    if(!rows.length){ body+="No passenger counts entered.\n\n"; }
    else {
-     // Plain-text table: each station is a row; count types are columns.
-     body+="STATION | FIRST CLASS | STANDARD | TOTAL PASSENGERS\n";
-     body+="---------------------------------------------------\n";
+     // Fixed-width plain-text table so columns stay readable in email composers.
+     const stationWidth=Math.max(7,Math.min(24,...rows.map(r=>String(r.station||"Station not entered").trim().length)));
+     const padRight=(v,w)=>String(v).slice(0,w).padEnd(w," ");
+     const padLeft=(v,w)=>String(v).padStart(w," ");
+     const widths=[stationWidth,11,10,17];
+     const line="+"+widths.map(w=>"-".repeat(w+2)).join("+")+"+\n";
+     const formatRow=(cells)=>"| "+cells.map((v,i)=>i===0?padRight(v,widths[i]):padLeft(v,widths[i])).join(" | ")+" |\n";
+     body+="(For best alignment, view this table in a monospaced font.)\n";
+     body+=line;
+     body+=formatRow(["STATION","FIRST CLASS","STANDARD","TOTAL PASSENGERS"]);
+     body+=line;
+     let sumFirst=0,sumStandard=0;
      rows.forEach(r=>{
        const station=String(r.station||"Station not entered").trim();
        const first=Number(r.first||0), standard=Number(r.standard||0), total=first+standard;
-       body+=station+" | "+first+" | "+standard+" | "+total+"\n";
+       sumFirst+=first;sumStandard+=standard;
+       body+=formatRow([station,first,standard,total]);
      });
-     const sumFirst=rows.reduce((sum,r)=>sum+Number(r.first||0),0);
-     const sumStandard=rows.reduce((sum,r)=>sum+Number(r.standard||0),0);
-     body+="TRAIN TOTAL | "+sumFirst+" | "+sumStandard+" | "+(sumFirst+sumStandard)+"\n\n";
+     body+=line;
+     body+=formatRow(["TRAIN TOTAL",sumFirst,sumStandard,sumFirst+sumStandard]);
+     body+=line+"\n";
    }
  });
  location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);

@@ -489,15 +489,20 @@ async function emailCounts(){
    if(t.fullAndStanding) body+="FULL AND STANDING\n";
    body+="\nSTATION COUNTS\n";
    const rows=(t.rows||[]).filter(r=>String(r.station||"").trim()!==""||String(r.first??"").trim()!==""||String(r.standard??"").trim()!=="");
-   if(!rows.length){ body+="No passenger counts entered.\n"; }
-   rows.forEach(r=>{
-     const first=Number(r.first||0), standard=Number(r.standard||0), total=first+standard;
-     body+="Station: "+(String(r.station||"Station not entered").trim())+"\n";
-     body+="First Class: "+first+" | Standard: "+standard+" | Total Passengers: "+total+"\n\n";
-   });
-   const sumFirst=rows.reduce((sum,r)=>sum+Number(r.first||0),0);
-   const sumStandard=rows.reduce((sum,r)=>sum+Number(r.standard||0),0);
-   body+="TRAIN TOTAL — First Class: "+sumFirst+" | Standard: "+sumStandard+" | Total Passengers: "+(sumFirst+sumStandard)+"\n\n";
+   if(!rows.length){ body+="No passenger counts entered.\n\n"; }
+   else {
+     // Plain-text table: each station is a row; count types are columns.
+     body+="STATION | FIRST CLASS | STANDARD | TOTAL PASSENGERS\n";
+     body+="---------------------------------------------------\n";
+     rows.forEach(r=>{
+       const station=String(r.station||"Station not entered").trim();
+       const first=Number(r.first||0), standard=Number(r.standard||0), total=first+standard;
+       body+=station+" | "+first+" | "+standard+" | "+total+"\n";
+     });
+     const sumFirst=rows.reduce((sum,r)=>sum+Number(r.first||0),0);
+     const sumStandard=rows.reduce((sum,r)=>sum+Number(r.standard||0),0);
+     body+="TRAIN TOTAL | "+sumFirst+" | "+sumStandard+" | "+(sumFirst+sumStandard)+"\n\n";
+   }
  });
  location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
 }

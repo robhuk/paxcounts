@@ -239,6 +239,71 @@ input,select,textarea{font-size:16px!important}
   .train-block tbody td:nth-child(2)::before,.train-block tbody td:nth-child(3)::before,.train-block tbody td:nth-child(4)::before{font-size:9px}
 }
 </style>
+
+<style id="passenger-mobile-table-fix-v2">
+/* Mobile passenger-count rows: use readable two-column fields, never squeeze labels word-by-word. */
+@media (max-width: 520px) {
+  .train-block table { display:block !important; width:100% !important; }
+  .train-block tbody { display:block !important; width:100% !important; }
+  .train-block tbody tr {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    gap:10px 12px !important;
+    width:100% !important;
+    padding:12px 0 !important;
+  }
+  .train-block tbody td {
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:flex-end !important;
+    min-width:0 !important;
+    width:auto !important;
+    overflow-wrap:normal !important;
+    word-break:normal !important;
+  }
+  .train-block tbody td:first-child { grid-column:1 / -1 !important; }
+  .train-block tbody td:first-child::before {
+    content:"STATION" !important; display:block; white-space:normal;
+    overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(2)::before {
+    content:"FIRST CLASS" !important; display:block; white-space:normal;
+    overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(3)::before {
+    content:"STANDARD" !important; display:block; white-space:normal;
+    overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(4) {
+    grid-column:1 / -1 !important;
+    display:flex !important; flex-direction:row !important;
+    align-items:center !important; justify-content:space-between !important;
+    gap:12px !important; min-height:38px;
+    border-top:1px solid #eee !important; padding-top:8px !important;
+    font-size:16px !important;
+  }
+  .train-block tbody td:nth-child(4)::before {
+    content:"TOTAL PASSENGERS" !important; display:block; white-space:normal;
+    font-size:12px !important; overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(5) {
+    grid-column:1 / -1 !important;
+    display:flex !important; flex-direction:row !important;
+    align-items:center !important; justify-content:flex-start !important;
+    gap:10px !important; padding-top:4px !important;
+  }
+  .train-block tbody td:nth-child(5)::before {
+    content:"SUBMITTED" !important; display:block; white-space:normal;
+    font-size:12px !important; overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td input:not([type="checkbox"]) {
+    width:100% !important; min-width:0 !important; height:44px !important;
+    padding:8px 10px !important; font-size:16px !important;
+  }
+  .train-block input[type="checkbox"] { width:24px !important; height:24px !important; flex:0 0 24px !important; }
+}
+</style>
+
 </head><body><header class="xc-compact-header"><img alt="XC" class="xc-page-header-logo" src="crosscountry-logo-white.png"/></header>
 <header><div class="heading">👥 Manual Passenger Counts</div></header><div class="main-menu-wrap"></div>
 <section id="archive-calendar-panel" class="archive-calendar-panel" hidden>
@@ -467,7 +532,72 @@ function printPassengerReport(){
  const notes=(document.getElementById("reasonNotes")?.value||reasonNotes||"").trim();
  const logoUrl=new URL("crosscountry-logo-white.png",window.location.href).href;
  const report='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XC Passenger Count Report</title><style>'+
- '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:auto;page-break-inside:auto}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere;word-break:normal}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:28%}th:nth-child(2){width:16%}th:nth-child(3){width:16%}th:nth-child(4){width:25%}th:nth-child(5){width:15%}td.total{font-weight:800}td.submitted{text-align:center;font-weight:700}.grand-total th,.grand-total td{font-weight:800;background:#f7f0e0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style></head><body>'+
+ '@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#222;margin:0;font-size:10pt}.brand{background:#b5121b;color:#fff;border-bottom:5px solid #f5c242;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:16px}.brand img{width:125px;max-height:34px;object-fit:contain}.brand-title{font-size:17pt;font-weight:800}.train{margin:0 0 22px;break-inside:auto;page-break-inside:auto}.train h2{font-size:12pt;color:#b5121b;margin:0 0 8px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}.meta div{border:1px solid #bbb;padding:7px;min-height:38px}.meta strong{display:block;font-size:8pt;color:#b5121b;margin-bottom:3px}.meta span{font-size:10pt}table{width:100%;border-collapse:collapse;table-layout:fixed}thead{display:table-header-group}tfoot{display:table-footer-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{border:1px solid #999;padding:6px;text-align:left;overflow-wrap:anywhere;word-break:normal}th{background:#b5121b;color:#fff;font-size:8.5pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}th:nth-child(n+2),td.num{text-align:center}th:first-child{width:28%}th:nth-child(2){width:16%}th:nth-child(3){width:16%}th:nth-child(4){width:25%}th:nth-child(5){width:15%}td.total{font-weight:800}td.submitted{text-align:center;font-weight:700}.grand-total th,.grand-total td{font-weight:800;background:#f7f0e0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.notes{margin-top:18px;border-top:3px solid #f5c242;padding-top:9px;break-inside:avoid}.notes h3{margin:0 0 6px;font-size:10pt;color:#b5121b}.notes p{white-space:pre-wrap;margin:0}.footer{margin-top:20px;padding-top:7px;border-top:2px solid #f5c242;color:#555;font-size:8pt}@media print{.brand{break-inside:avoid}tr{break-inside:avoid}}</style>
+<style id="passenger-mobile-table-fix-v2">
+/* Mobile passenger-count rows: use readable two-column fields, never squeeze labels word-by-word. */
+@media (max-width: 520px) {
+  .train-block table { display:block !important; width:100% !important; }
+  .train-block tbody { display:block !important; width:100% !important; }
+  .train-block tbody tr {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    gap:10px 12px !important;
+    width:100% !important;
+    padding:12px 0 !important;
+  }
+  .train-block tbody td {
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:flex-end !important;
+    min-width:0 !important;
+    width:auto !important;
+    overflow-wrap:normal !important;
+    word-break:normal !important;
+  }
+  .train-block tbody td:first-child { grid-column:1 / -1 !important; }
+  .train-block tbody td:first-child::before {
+    content:"STATION" !important; display:block; white-space:normal;
+    overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(2)::before {
+    content:"FIRST CLASS" !important; display:block; white-space:normal;
+    overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(3)::before {
+    content:"STANDARD" !important; display:block; white-space:normal;
+    overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(4) {
+    grid-column:1 / -1 !important;
+    display:flex !important; flex-direction:row !important;
+    align-items:center !important; justify-content:space-between !important;
+    gap:12px !important; min-height:38px;
+    border-top:1px solid #eee !important; padding-top:8px !important;
+    font-size:16px !important;
+  }
+  .train-block tbody td:nth-child(4)::before {
+    content:"TOTAL PASSENGERS" !important; display:block; white-space:normal;
+    font-size:12px !important; overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td:nth-child(5) {
+    grid-column:1 / -1 !important;
+    display:flex !important; flex-direction:row !important;
+    align-items:center !important; justify-content:flex-start !important;
+    gap:10px !important; padding-top:4px !important;
+  }
+  .train-block tbody td:nth-child(5)::before {
+    content:"SUBMITTED" !important; display:block; white-space:normal;
+    font-size:12px !important; overflow-wrap:normal !important; word-break:normal !important;
+  }
+  .train-block tbody td input:not([type="checkbox"]) {
+    width:100% !important; min-width:0 !important; height:44px !important;
+    padding:8px 10px !important; font-size:16px !important;
+  }
+  .train-block input[type="checkbox"] { width:24px !important; height:24px !important; flex:0 0 24px !important; }
+}
+</style>
+
+</head><body>'+
  '<header class="brand"><img src="'+escReport(logoUrl)+'" alt="CrossCountry"><div class="brand-title">PASSENGER COUNT REPORT</div></header>'+html+
  (notes?'<section class="notes"><h3>REASON / NOTES</h3><p>'+escReport(notes)+'</p></section>':'')+
  '<footer class="footer"></footer></body></html>';

@@ -33,7 +33,7 @@ footer{text-align:center;color:#747985;font-size:.75rem;padding:8px 14px}
 </style>
 </head>
 <body>
-<header><div class="headrow"><div class="brandmark">XC</div><div><h1>Passenger Count</h1><p>Record, save and export passenger counts</p></div></div></header>
+<header><div class="headrow"><div class="brandmark">XC</div><div><h1>Passenger Count</h1><p>Record and export passenger counts</p></div></div></header>
 <main>
 <section class="card">
 <h2>Train details</h2>
@@ -58,7 +58,7 @@ footer{text-align:center;color:#747985;font-size:.75rem;padding:8px 14px}
 <h2>Report</h2>
 <div class="actions">
 <button id="generate" class="primary">Generate report</button><button id="copy" >Copy report</button>
-<button id="email" class="secondary">Email report</button><button id="save" class="secondary">Save train</button>
+<button id="email" class="secondary">Email report</button>
 </div>
 <div style="margin-top:12px"><label class="small" for="preview">Report preview</label><div id="preview" aria-live="polite">Generate a report to preview it here.</div></div>
 </section>
@@ -69,36 +69,28 @@ footer{text-align:center;color:#747985;font-size:.75rem;padding:8px 14px}
 <div class="actions"><button id="exportArchive" class="secondary">Export archive JSON</button><button id="clearArchive" class="danger">Delete all saved trains</button></div>
 </section>
 </main>
-<footer>Passenger Count · Data stays on this device unless you export or email it.</footer>
+<footer>Passenger Count</footer>
 <script>
 const $=id=>document.getElementById(id);
 const today=new Date(); const localDate=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
 $('date').value=localDate;$('archiveDate').value=localDate;
 let rowSeq=0, reportHtml='';
-const STORE='xc-passenger-count-standalone-v1';
-function newRow(station='',first='',standard=''){const id=++rowSeq,tr=document.createElement('tr');tr.dataset.id=id;tr.innerHTML=`<td class="station"><input aria-label="Station name" placeholder="Station" value="${esc(station)}"></td><td><input aria-label="First class count" type="number" min="0" max="999" step="1" inputmode="numeric" value="${first}" placeholder="0"></td><td><input aria-label="Standard count" type="number" min="0" max="999" step="1" inputmode="numeric" value="${standard}" placeholder="0"></td><td class="total">0</td>`;tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calc));$('rows').appendChild(tr);calc();}
+
+function newRow(station='',first='',standard=''){const id=++rowSeq,tr=document.createElement('tr');tr.dataset.id=id;tr.innerHTML=`<td class="station"><input aria-label="Station name" placeholder="Station" value="${esc(station)}"></td><td><input aria-label="First class count" type="number" min="0" step="1" inputmode="numeric" value="${first}" placeholder="0"></td><td><input aria-label="Standard count" type="number" min="0" step="1" inputmode="numeric" value="${standard}" placeholder="0"></td><td class="total">0</td>`;tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calc));$('rows').appendChild(tr);calc();}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function data(){let entries=[...$('rows').rows].map(tr=>{let i=tr.querySelectorAll('input');return {station:i[0].value.trim(),first:valid(i[1].value),standard:valid(i[2].value)}});return {date:$('date').value||localDate,headcode:$('headcode').value.trim().toUpperCase(),unit:$('unit').value.trim(),reason:$('reason').value.trim(),full:$('full').checked,entries};}
-function valid(v){let n=Number.parseInt(v,10);return Number.isFinite(n)?Math.max(0,Math.min(999,n)):0}
+function valid(v){let n=Number.parseInt(v,10);return Number.isFinite(n)?Math.max(0,n):0}
 function calc(){let sum=0;[...$('rows').rows].forEach(tr=>{let ins=tr.querySelectorAll('input'),total=valid(ins[1].value)+valid(ins[2].value);tr.querySelector('.total').textContent=total;sum+=total;});$('grandTotal').textContent=sum+' passenger'+(sum===1?'':'s');}
 function dateUK(d){if(!d)return '';let p=d.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d;}
-function makeReport(d=data()){let lines=[`PASSENGER COUNTS — ${dateUK(d.date)}`,`TRAIN: ${d.headcode||'Not entered'}`];if(d.unit)lines.push(`UNIT: ${d.unit}`);if(d.full)lines.push('This Train was full and standing for a portion of its journey');if(d.reason)lines.push(`Reason / Notes: ${d.reason}`);lines.push('');d.entries.filter(e=>e.station||e.first||e.standard).forEach(e=>lines.push(`${e.station||'Station not entered'}: ${e.first} First Class / ${e.standard} Standard [TOTAL PASSENGERS ${e.first+e.standard}]`));lines.push('',`TOTAL PASSENGERS: ${d.entries.reduce((a,e)=>a+e.first+e.standard,0)}`);return lines.join('\\n');}
+function makeReport(d=data()){let lines=[`PASSENGER COUNTS — ${dateUK(d.date)}`,`TRAIN: ${d.headcode||'Not entered'}`];if(d.unit)lines.push(`UNIT: ${d.unit}`);if(d.full)lines.push('This Train was full and standing for a portion of its journey');if(d.reason)lines.push(`Reason / Notes: ${d.reason}`);lines.push('');d.entries.filter(e=>e.station||e.first||e.standard).forEach(e=>lines.push(`${e.station||'Station not entered'}: ${e.first} First Class / ${e.standard} Standard [TOTAL PASSENGERS ${e.first+e.standard}]`));lines.push('',`TOTAL PASSENGERS: ${d.entries.reduce((a,e)=>a+e.first+e.standard,0)}`);return lines.join('\n');}
 function htmlReport(d=data()){let trs=d.entries.filter(e=>e.station||e.first||e.standard).map(e=>`<tr><td style="border:1px solid #bbb;padding:6px">${esc(e.station||'Station not entered')}</td><td style="border:1px solid #bbb;padding:6px;text-align:right">${e.first}</td><td style="border:1px solid #bbb;padding:6px;text-align:right">${e.standard}</td><td style="border:1px solid #bbb;padding:6px;text-align:right">${e.first+e.standard}</td></tr>`).join('');return `<div style="font-family:Arial,sans-serif;color:#222"><h2>Passenger Counts — ${dateUK(d.date)}</h2><p><strong>TRAIN:</strong> ${esc(d.headcode||'Not entered')}${d.unit?`<br><strong>UNIT:</strong> ${esc(d.unit)}`:''}</p>${d.full?'<p><strong>This Train was full and standing for a portion of its journey</strong></p>':''}${d.reason?`<p><strong>Reason / Notes:</strong> ${esc(d.reason)}</p>`:''}<table style="border-collapse:collapse;width:100%;max-width:700px"><thead><tr><th style="border:1px solid #bbb;padding:6px;text-align:left">Station</th><th style="border:1px solid #bbb;padding:6px">First Class</th><th style="border:1px solid #bbb;padding:6px">Standard</th><th style="border:1px solid #bbb;padding:6px">Total</th></tr></thead><tbody>${trs}</tbody></table><p><strong>Total passengers:</strong> ${d.entries.reduce((a,e)=>a+e.first+e.standard,0)}</p></div>`;}
 function renderReport(){let d=data();if(d.headcode&&!/^[0-9][A-Z][0-9]{2}$/.test(d.headcode)){alert('Enter a valid 4-character headcode, e.g. 1V50.');return false;}if(d.unit&&!/^\d{6}$/.test(d.unit)){alert('Unit number must be six digits.');return false;}$('headcode').value=d.headcode;$('preview').textContent=makeReport(d);reportHtml=htmlReport(d);return true;}
-function archive(){try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch(e){return []}}
-function setArchive(a){localStorage.setItem(STORE,JSON.stringify(a));drawArchive();}
-function save(){let d=data();if(d.headcode&&!/^[0-9][A-Z][0-9]{2}$/.test(d.headcode)){alert('Enter a valid 4-character headcode, e.g. 1V50.');return;}if(d.unit&&!/^\d{6}$/.test(d.unit)){alert('Unit number must be six digits.');return;}let a=archive();let idx=a.findIndex(x=>x.date===d.date&&x.headcode===d.headcode&&x.unit===d.unit);if(idx>=0)a[idx]=d;else a.unshift(d);setArchive(a);alert('Train saved on this device.');}
-function load(d){$('date').value=d.date||localDate;$('headcode').value=d.headcode||'';$('unit').value=d.unit||'';$('reason').value=d.reason||'';$('full').checked=!!d.full;$('rows').innerHTML='';rowSeq=0;(d.entries?.length?d.entries:[{station:'',first:0,standard:0}]).forEach(e=>newRow(e.station,e.first,e.standard));$('preview').textContent=makeReport(d);reportHtml=htmlReport(d);window.scrollTo({top:0,behavior:'smooth'});}
-function drawArchive(){let date=$('archiveDate').value;let a=archive().filter(x=>!date||x.date===date);$('archive').innerHTML='';if(!a.length){$('archive').innerHTML='<p class="small">No saved trains for this date.</p>';return;}a.forEach((d,i)=>{let el=document.createElement('div');el.className='archiveitem';let count=d.entries.reduce((s,e)=>s+e.first+e.standard,0);let info=document.createElement('div');info.innerHTML=`<strong>${esc(d.headcode||'No headcode')} · ${esc(d.unit||'No unit')}</strong><span class="small">${dateUK(d.date)} · ${count} passengers</span>`;let controls=document.createElement('div');controls.style.display='flex';controls.style.gap='6px';let loadBtn=document.createElement('button');loadBtn.textContent='Load';loadBtn.onclick=()=>load(d);let del=document.createElement('button');del.className='danger';del.textContent='Delete';del.onclick=()=>{if(confirm('Delete this saved train?'))setArchive(archive().filter(x=>!(x.date===d.date&&x.headcode===d.headcode&&x.unit===d.unit)));};controls.append(loadBtn,del);el.append(info,controls);$('archive').append(el);});}
 $('addRow').onclick=()=>newRow();$('clearRows').onclick=()=>{if(confirm('Clear all station rows and counts?')){$('rows').innerHTML='';newRow();}};
 $('generate').onclick=renderReport;$('copy').onclick=async()=>{if(!renderReport())return;try{await navigator.clipboard.writeText($('preview').textContent);alert('Report copied.');}catch(e){let r=document.createRange();r.selectNodeContents($('preview'));let s=getSelection();s.removeAllRanges();s.addRange(r);alert('Select and copy the highlighted report.');}};
-$('email').onclick=()=>{if(!renderReport())return;let d=data(),subject=encodeURIComponent('Pax Counts for '+(d.headcode||'TRAIN'));let body=encodeURIComponent(makeReport(d));window.location.href='mailto:?subject='+subject+'&body='+body;};
-$('save').onclick=save;$('archiveDate').onchange=drawArchive;
-$('exportArchive').onclick=()=>{let blob=new Blob([JSON.stringify(archive(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Passenger-Count-Archive-'+localDate+'.json';a.click();URL.revokeObjectURL(url);};
-$('clearArchive').onclick=()=>{if(confirm('Permanently delete every saved train on this device?')){localStorage.removeItem(STORE);drawArchive();}};
+$('email').onclick=()=>{if(!renderReport())return;let d=data();let subject=encodeURIComponent('Passenger counts on '+dateUK(d.date)+' for '+(d.headcode||'HEADCODES'));let lines=[];if(d.reason)lines.push(d.reason);lines.push('');lines.push((d.headcode||'Headcode')+(d.full?' — TRAIN WAS FULL AND STANDING':''));lines.push('');d.entries.filter(e=>e.station||e.first||e.standard).forEach(e=>lines.push(`${e.station||'Station not entered'} - ${e.first} - ${e.standard} - (total ${e.first+e.standard} passengers)`));let body=encodeURIComponent(lines.join('\n'));window.location.href='mailto:?subject='+subject+'&body='+body;};
 $('headcode').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^0-9A-Z]/g,'').slice(0,4)});
 $('unit').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,6)});
-newRow();drawArchive();
+newRow();
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
 </body></html>

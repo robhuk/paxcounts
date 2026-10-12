@@ -11,7 +11,7 @@
 <style>
 :root{--red:#a50034;--gold:#f4c542;--ink:#20232a;--muted:#626875;--line:#d9dde4;--bg:#f3f5f8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
-header{background:var(--red);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 15px}.headrow{display:flex;align-items:center;gap:12px}.brandmark{width:42px;height:42px;border:2px solid #fff;border-radius:10px;display:grid;place-items:center;font-weight:900;font-size:21px;flex:none}h1{font-size:1.25rem;margin:0;font-weight:800}header p{margin:3px 0 0;font-size:.86rem;opacity:.9}
+header{background:var(--red);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 15px}.headrow{display:flex;align-items:center;gap:12px}.head-spacer{flex:1}.save-button{background:var(--gold);color:#222;min-height:40px;padding:8px 12px;white-space:nowrap}.brandmark{width:42px;height:42px;border:2px solid #fff;border-radius:10px;display:grid;place-items:center;font-weight:900;font-size:21px;flex:none}h1{font-size:1.25rem;margin:0;font-weight:800}header p{margin:3px 0 0;font-size:.86rem;opacity:.9}
 main{max-width:1000px;margin:0 auto;padding:12px;display:grid;gap:12px}.card,.train-card{background:#fff;border-radius:14px;padding:13px;box-shadow:0 2px 8px #1822300b;border:1px solid #e9ebef}h2{font-size:1rem;margin:0 0 11px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{min-width:0}.field label{display:block;font-size:.82rem;font-weight:700;margin-bottom:5px;color:#414753}input,textarea{font:inherit;width:100%;min-width:0;border:1px solid #cbd0d9;border-radius:9px;padding:9px 10px;background:#fff;color:var(--ink);min-height:42px}textarea{resize:vertical}input:focus,textarea:focus{outline:2px solid #a5003444;border-color:var(--red)}
 .checkline{display:flex;align-items:center;gap:9px;padding-top:10px;font-weight:650;font-size:.9rem}.checkline input{width:20px;height:20px;min-height:auto;accent-color:var(--red)}
 .tablewrap{overflow-x:hidden;border:1px solid var(--line);border-radius:9px}table{border-collapse:collapse;width:100%;table-layout:fixed;background:#fff}th,td{border-bottom:1px solid #e5e7eb;padding:5px 3px;text-align:center;vertical-align:middle}th{font-size:.72rem;background:#f1f2f5;font-weight:800}td:first-child,th:first-child{width:35%;text-align:left}th:nth-child(2),th:nth-child(3){width:22%}th:last-child{width:21%}td input{padding:7px 2px;text-align:center;min-height:38px;border-radius:6px;font-size:.92rem}
@@ -29,7 +29,7 @@ td.station input{text-align:left;padding-left:6px}td.total{font-weight:800;font-
 </style>
 </head>
 <body>
-<header><div class="headrow"><div class="brandmark">XC</div><div><h1>Passenger Count</h1><p>Record and export passenger counts</p></div></div></header>
+<header><div class="headrow"><div class="brandmark">XC</div><div><h1>Passenger Count</h1><p>Record and export passenger counts</p></div><div class="head-spacer"></div><button id="saveData" class="save-button" type="button">Save</button></div></header>
 <main>
 <section class="card">
 <h2>Date and reason / notes — applies to all trains</h2>
@@ -101,11 +101,27 @@ function buildReport(){
  const chunks=[`PASSENGER COUNTS — ${dateUK($('date').value||localDate)}`];if($('reason').value.trim())chunks.push('Reason / Notes: '+$('reason').value.trim());chunks.push('');
  trains.forEach((t,i)=>chunks.push(reportFor(t,i)));reportText=chunks.join('\n\n--------------------\n\n');$('preview').textContent=reportText;return true;
 }
+const SAVE_KEY='xc-passenger-count-current-session-v1';
+function saveCurrentData(showMessage=true){
+ const payload={date:$('date').value||localDate,reason:$('reason').value,trains,nextId};
+ try{localStorage.setItem(SAVE_KEY,JSON.stringify(payload));if(showMessage)alert('Current passenger counts saved on this device.');return true;}
+ catch(e){if(showMessage)alert('Could not save data on this device. Check available browser storage.');return false;}
+}
+function restoreSavedData(){
+ try{
+  const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;
+  const saved=JSON.parse(raw);if(!saved||!Array.isArray(saved.trains)||!saved.trains.length)return false;
+  $('date').value=saved.date||localDate;$('reason').value=saved.reason||'';
+  trains=saved.trains.map((t,i)=>({id:Number(t.id)||i+1,headcode:String(t.headcode||''),unit:String(t.unit||''),full:!!t.full,entries:Array.from({length:15},(_,j)=>{const e=(t.entries||[])[j]||{};return {station:String(e.station||''),first:String(e.first??''),standard:String(e.standard??'')}})}));
+  nextId=Math.max(Number(saved.nextId)||1,...trains.map(t=>t.id+1));renderTrains();return true;
+ }catch(e){return false;}
+}
+$('saveData').onclick=()=>saveCurrentData(true);
 $('addTrain').onclick=addTrain;
 $('generate').onclick=buildReport;
 $('copy').onclick=async()=>{if(!buildReport())return;try{await navigator.clipboard.writeText(reportText);alert('Report copied.')}catch(e){alert('Copy is not available in this browser. Select the report preview and copy it manually.')}};
 $('email').onclick=()=>{if(!buildReport())return;const subject=encodeURIComponent('Passenger counts on '+dateUK($('date').value||localDate)+' for '+trains.map(t=>t.headcode||'HEADCODES').join(', '));let body=[];if($('reason').value.trim())body.push($('reason').value.trim());body.push('');trains.forEach((t,i)=>{body.push((t.headcode||'Headcode')+(t.full?' — TRAIN WAS FULL AND STANDING':''));body.push('');t.entries.filter(e=>e.station||e.first!==''||e.standard!=='').forEach(e=>body.push(`${e.station||'Station not entered'} - ${valid(e.first)} - ${valid(e.standard)} - (total ${valid(e.first)+valid(e.standard)} passengers)`));if(i<trains.length-1)body.push('','--------------------','');});window.location.href='mailto:?subject='+subject+'&body='+encodeURIComponent(body.join('\n'));};
-addTrain();
+if(!restoreSavedData())addTrain();
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
 </body></html>

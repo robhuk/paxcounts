@@ -304,6 +304,38 @@ input,select,textarea{font-size:16px!important}
 }
 </style>
 
+
+<style id="mobile-five-column-table-v3">
+/* Keep the five requested passenger-count columns in a single compact table on phones. */
+.train-block table { width:100%; table-layout:fixed; border-collapse:collapse; }
+.train-block th:nth-child(1), .train-block td:nth-child(1) { width:29%; }
+.train-block th:nth-child(2), .train-block td:nth-child(2) { width:14%; }
+.train-block th:nth-child(3), .train-block td:nth-child(3) { width:16%; }
+.train-block th:nth-child(4), .train-block td:nth-child(4) { width:21%; }
+.train-block th:nth-child(5), .train-block td:nth-child(5) { width:20%; }
+.train-block th, .train-block td { overflow-wrap:normal; word-break:normal; }
+@media (max-width:520px) {
+  html, body { width:100%; max-width:100%; overflow-x:hidden; }
+  .train-block { padding:8px !important; overflow:hidden; }
+  .train-block table, .train-block tbody { display:table !important; width:100% !important; max-width:100% !important; table-layout:fixed !important; }
+  .train-block thead { display:table-header-group !important; }
+  .train-block tbody tr { display:table-row !important; width:auto !important; padding:0 !important; border:0 !important; }
+  .train-block th, .train-block td { display:table-cell !important; box-sizing:border-box; min-width:0 !important; padding:5px 2px !important; vertical-align:middle; overflow-wrap:normal !important; word-break:normal !important; }
+  .train-block th { font-size:9px !important; line-height:1.15; white-space:normal !important; }
+  .train-block td { font-size:12px !important; }
+  .train-block td input:not([type="checkbox"]) { display:block; width:100% !important; min-width:0 !important; height:38px !important; padding:5px 2px !important; font-size:14px !important; border-radius:6px !important; }
+  .train-block td:first-child input { font-size:13px !important; }
+  .train-block td::before { content:none !important; display:none !important; }
+  .train-block .row-total { text-align:center !important; font-size:13px !important; }
+  .train-block input[type="checkbox"] { display:block; width:20px !important; height:20px !important; min-height:20px !important; margin:0 auto !important; padding:0 !important; }
+}
+@media (max-width:360px) {
+  .train-block { padding:5px !important; }
+  .train-block th, .train-block td { padding:4px 1px !important; }
+  .train-block th { font-size:8px !important; }
+  .train-block td input:not([type="checkbox"]) { font-size:12px !important; }
+}
+</style>
 </head><body><header class="xc-compact-header"><img alt="XC" class="xc-page-header-logo" src="crosscountry-logo-white.png"/></header>
 <header><div class="heading">👥 Manual Passenger Counts</div></header><div class="main-menu-wrap"></div>
 <section id="archive-calendar-panel" class="archive-calendar-panel" hidden>

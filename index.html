@@ -53,7 +53,7 @@ footer{text-align:center;color:#747985;font-size:.75rem;padding:8px 14px}
 <section class="card">
 <h2>Passenger counts</h2>
 <div class="tablewrap"><table aria-label="Passenger counts"><thead><tr><th>Station</th><th>First</th><th>Standard</th><th>Total</th></tr></thead><tbody id="rows"></tbody></table></div>
-<div class="totals"><span>Train total</span><span id="grandTotal">0 passengers</span></div>
+
 <div class="actions">
 <button id="clearRows" class="secondary" style="grid-column:1 / -1">Clear counts</button>
 </div>
@@ -62,7 +62,7 @@ footer{text-align:center;color:#747985;font-size:.75rem;padding:8px 14px}
 <section class="card">
 <h2>Train management</h2>
 <p class="small">Add another train to this report. Each train has its own headcode, unit, full-and-standing status and 15 station rows.</p>
-<div class="actions"><button id="addTrain" class="primary">+ Add train</button><button id="removeTrain" class="danger">Remove current train</button></div>
+<div class="actions"><button id="addTrain" class="primary" aria-label="Add train">+</button></div>
 <div id="trainTabs" class="actions" aria-label="Select train"></div>
 </section>
 <section class="card">
@@ -93,12 +93,11 @@ function captureTrain(){return {headcode:$('headcode').value,unit:$('unit').valu
 function paintTrainTabs(){const host=$('trainTabs');host.innerHTML='';trains.forEach(t=>{let b=document.createElement('button');b.textContent=t.label;b.className=t.id===activeTrain?'primary':'secondary';b.onclick=()=>switchTrain(t.id);host.appendChild(b);});}
 function switchTrain(id){const current=trains.find(t=>t.id===activeTrain);if(current)current.data=captureTrain();activeTrain=id;const t=trains.find(t=>t.id===id);const d=t.data;if(d){$('headcode').value=d.headcode||'';$('unit').value=d.unit||'';$('full').checked=!!d.full;$('rows').innerHTML='';rowSeq=0;(d.entries||[]).forEach(e=>newRow(e.station,e.first,e.standard));while($('rows').rows.length<15)newRow();}paintTrainTabs();calc();}
 function addTrain(){const current=trains.find(t=>t.id===activeTrain);if(current)current.data=captureTrain();trainCounter++;const t={id:trainCounter,label:'Train '+trainCounter,data:{headcode:'',unit:'',full:false,entries:Array.from({length:15},()=>({station:'',first:'',standard:''}))}};trains.push(t);switchTrain(t.id);paintTrainTabs();}
-function removeTrain(){if(trains.length===1){alert('At least one train must remain.');return;}if(!confirm('Remove '+trains.find(t=>t.id===activeTrain).label+' and its counts?'))return;const removedId=activeTrain;trains=trains.filter(t=>t.id!==removedId);activeTrain=removedId;switchTrain(trains[trains.length-1].id);paintTrainTabs();}
 function newRow(station='',first='',standard=''){const id=++rowSeq,tr=document.createElement('tr');tr.dataset.id=id;tr.innerHTML=`<td class="station"><input aria-label="Station name" placeholder="Station" value="${esc(station)}"></td><td><input aria-label="First class count" type="number" min="0" step="1" inputmode="numeric" value="${first}" placeholder="0"></td><td><input aria-label="Standard count" type="number" min="0" step="1" inputmode="numeric" value="${standard}" placeholder="0"></td><td class="total">0</td>`;tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calc));$('rows').appendChild(tr);calc();}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function data(){let entries=[...$('rows').rows].map(tr=>{let i=tr.querySelectorAll('input');return {station:i[0].value.trim(),first:valid(i[1].value),standard:valid(i[2].value)}});return {date:$('date').value||localDate,headcode:$('headcode').value.trim().toUpperCase(),unit:$('unit').value.trim(),reason:$('reason').value.trim(),full:$('full').checked,entries};}
 function valid(v){let n=Number.parseInt(v,10);return Number.isFinite(n)?Math.max(0,n):0}
-function calc(){let sum=0;[...$('rows').rows].forEach(tr=>{let ins=tr.querySelectorAll('input'),total=valid(ins[1].value)+valid(ins[2].value);tr.querySelector('.total').textContent=total;sum+=total;});$('grandTotal').textContent=sum+' passenger'+(sum===1?'':'s');}
+function calc(){let sum=0;[...$('rows').rows].forEach(tr=>{let ins=tr.querySelectorAll('input'),total=valid(ins[1].value)+valid(ins[2].value);tr.querySelector('.total').textContent=total;sum+=total;});}
 function dateUK(d){if(!d)return '';let p=d.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d;}
 function makeReport(d=data()){let lines=[`PASSENGER COUNTS — ${dateUK(d.date)}`,`TRAIN: ${d.headcode||'Not entered'}`];if(d.unit)lines.push(`UNIT: ${d.unit}`);if(d.full)lines.push('This Train was full and standing for a portion of its journey');if(d.reason)lines.push(`Reason / Notes: ${d.reason}`);lines.push('');d.entries.filter(e=>e.station||e.first||e.standard).forEach(e=>lines.push(`${e.station||'Station not entered'}: ${e.first} First Class / ${e.standard} Standard [TOTAL PASSENGERS ${e.first+e.standard}]`));lines.push('',`TOTAL PASSENGERS: ${d.entries.reduce((a,e)=>a+e.first+e.standard,0)}`);return lines.join('\n');}
 function htmlReport(d=data()){let trs=d.entries.filter(e=>e.station||e.first||e.standard).map(e=>`<tr><td style="border:1px solid #bbb;padding:6px">${esc(e.station||'Station not entered')}</td><td style="border:1px solid #bbb;padding:6px;text-align:right">${e.first}</td><td style="border:1px solid #bbb;padding:6px;text-align:right">${e.standard}</td><td style="border:1px solid #bbb;padding:6px;text-align:right">${e.first+e.standard}</td></tr>`).join('');return `<div style="font-family:Arial,sans-serif;color:#222"><h2>Passenger Counts — ${dateUK(d.date)}</h2><p><strong>TRAIN:</strong> ${esc(d.headcode||'Not entered')}${d.unit?`<br><strong>UNIT:</strong> ${esc(d.unit)}`:''}</p>${d.full?'<p><strong>This Train was full and standing for a portion of its journey</strong></p>':''}${d.reason?`<p><strong>Reason / Notes:</strong> ${esc(d.reason)}</p>`:''}<table style="border-collapse:collapse;width:100%;max-width:700px"><thead><tr><th style="border:1px solid #bbb;padding:6px;text-align:left">Station</th><th style="border:1px solid #bbb;padding:6px">First Class</th><th style="border:1px solid #bbb;padding:6px">Standard</th><th style="border:1px solid #bbb;padding:6px">Total</th></tr></thead><tbody>${trs}</tbody></table><p><strong>Total passengers:</strong> ${d.entries.reduce((a,e)=>a+e.first+e.standard,0)}</p></div>`;}
@@ -109,7 +108,7 @@ $('email').onclick=()=>{if(!renderReport())return;let d=data();let all=trains.ma
 $('headcode').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^0-9A-Z]/g,'').slice(0,4)});
 $('unit').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,6)});
 for(let i=0;i<15;i++)newRow();
-$('addTrain').onclick=addTrain;$('removeTrain').onclick=removeTrain;paintTrainTabs();
+$('addTrain').onclick=addTrain;paintTrainTabs();
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
 </body></html>

@@ -2,126 +2,181 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#A50034">
-<meta name="description" content="Passenger count recorder for train crew">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icons/icon-192.png">
-<title>Passenger Count</title>
+<title>Train List</title>
 <style>
-:root{--red:#a50034;--gold:#f4c542;--ink:#20232a;--muted:#626875;--line:#d9dde4;--bg:#f3f5f8}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
-header{background:var(--red);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 15px}.headrow{display:flex;align-items:center;gap:12px}.head-spacer{flex:1}.save-button{background:var(--gold);color:#222;min-height:40px;padding:8px 12px;white-space:nowrap}.brandmark{width:42px;height:42px;border:2px solid #fff;border-radius:10px;display:grid;place-items:center;font-weight:900;font-size:21px;flex:none}h1{font-size:1.25rem;margin:0;font-weight:800}header p{margin:3px 0 0;font-size:.86rem;opacity:.9}
-main{max-width:1000px;margin:0 auto;padding:12px;display:grid;gap:12px}.card,.train-card{background:#fff;border-radius:14px;padding:13px;box-shadow:0 2px 8px #1822300b;border:1px solid #e9ebef}h2{font-size:1rem;margin:0 0 11px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{min-width:0}.field label{display:block;font-size:.82rem;font-weight:700;margin-bottom:5px;color:#414753}input,textarea{font:inherit;width:100%;min-width:0;border:1px solid #cbd0d9;border-radius:9px;padding:9px 10px;background:#fff;color:var(--ink);min-height:42px}textarea{resize:vertical}input:focus,textarea:focus{outline:2px solid #a5003444;border-color:var(--red)}
-.checkline{display:flex;align-items:center;gap:9px;padding-top:10px;font-weight:650;font-size:.9rem}.checkline input{width:20px;height:20px;min-height:auto;accent-color:var(--red)}
-.tablewrap{overflow-x:hidden;border:1px solid var(--line);border-radius:9px}table{border-collapse:collapse;width:100%;table-layout:fixed;background:#fff}th,td{border-bottom:1px solid #e5e7eb;padding:5px 3px;text-align:center;vertical-align:middle}th{font-size:.72rem;background:#f1f2f5;font-weight:800}td:first-child,th:first-child{width:35%;text-align:left}th:nth-child(2),th:nth-child(3){width:22%}th:last-child{width:21%}td input{padding:7px 2px;text-align:center;min-height:38px;border-radius:6px;font-size:.92rem}
-td input[type=number]{appearance:textfield;-moz-appearance:textfield}
-td input[type=number]::-webkit-inner-spin-button,td input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-td.capacity-green{background:#e2f5e8}td.capacity-amber{background:#fff2c7}td.capacity-red{background:#ffe0e3}
-td.capacity-green input{background:#f3fff6;border-color:#78c58e}td.capacity-amber input{background:#fffaf0;border-color:#e0bd58}td.capacity-red input{background:#fff5f6;border-color:#e39aa6}
-.capacity-legend{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 10px;font-size:.75rem;color:var(--muted)}
-.capacity-legend span{display:inline-flex;align-items:center;gap:5px}.capacity-dot{display:inline-block;width:11px;height:11px;border-radius:3px}
-td.station input{text-align:left;padding-left:6px}td.total{font-weight:800;font-variant-numeric:tabular-nums;font-size:.9rem}
-.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}button{border:0;border-radius:9px;min-height:43px;padding:10px 12px;font:700 .92rem system-ui;cursor:pointer;background:var(--gold);color:#222}button.primary{background:var(--red);color:#fff}button.secondary{background:#eceff3;color:#20232a;border:1px solid #d9dde4}button.danger{background:#fff0f2;color:#9d1235;border:1px solid #efc3ce}
-.train-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.train-heading h2{margin:0}.train-heading .remove{min-height:34px;padding:6px 10px;font-size:.8rem}.small{font-size:.8rem;color:var(--muted)}#preview{white-space:pre-wrap;overflow-wrap:anywhere;background:#f8f9fb;border:1px solid var(--line);border-radius:9px;padding:12px;font-size:.9rem;min-height:70px}footer{text-align:center;color:#747985;font-size:.75rem;padding:8px 14px}
-@media(min-width:700px){main{padding:16px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.card,.train-card{padding:16px}td:first-child,th:first-child{width:40%}th:nth-child(2),th:nth-child(3){width:20%}th:last-child{width:20%}}
-@media(max-width:360px){main{padding:7px}.card,.train-card{padding:9px}.grid{gap:7px}.actions{gap:6px}button{font-size:.84rem;padding:9px 7px}th{font-size:.67rem}td input{font-size:.85rem}}
+:root{--red:#A50034;--gold:#F2B632;--ink:#222;--muted:#666;--bg:#f2f3f5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+header{background:var(--red);color:#fff;padding:calc(15px + env(safe-area-inset-top)) 16px 18px}
+.head{max-width:1000px;margin:auto;display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border:2px solid var(--gold);border-radius:12px;display:grid;place-items:center;background:#fff;color:var(--red);font-size:25px;flex:none}
+h1{font-size:1.12rem;margin:0}.sub{margin:4px 0 0;font-size:.82rem;opacity:.9}
+main{max-width:1000px;margin:auto;padding:16px 12px 36px}.card{background:white;border:1px solid #e2e3e5;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 16px #00000008}
+h2{font-size:1.08rem;margin:0 0 12px}.help{font-size:.88rem;color:var(--muted);line-height:1.45;margin:0 0 14px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{font-size:.78rem;font-weight:700;display:block;color:#444}
+input,textarea,select{font:inherit;width:100%;margin-top:5px;padding:11px;border:1px solid #cfd2d6;border-radius:9px;background:white;color:var(--ink);min-width:0}
+textarea{min-height:110px;resize:vertical}.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:540px;font-size:.88rem}
+th{background:var(--red);color:white;text-align:left;padding:10px 8px}
+td{border-bottom:1px solid #ddd;padding:8px;vertical-align:top}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:11px;padding:13px 15px;font-weight:800;font-size:.92rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.primary{background:var(--gold);color:#241b00;box-shadow:0 2px 0 #bd8718}.dark{background:var(--red);color:white}.light{background:#eceef0;color:#252525}
+.note{background:#fff7df;border:1px solid #f0d78d;padding:12px;border-radius:10px;font-size:.84rem;color:#594812;line-height:1.4}
+.status{font-size:.85rem;color:#236b3a;margin-top:8px;min-height:1.2em}
+footer{text-align:center;font-size:.75rem;color:#777;padding:8px 12px 24px}
+#outputHead{display:none}
+@media(max-width:540px){.fields{grid-template-columns:1fr}.card{padding:13px}main{padding:12px 9px 28px}.actions button{flex:1}}
+#printReport{display:none}
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ body{background:#fff!important;color:#111;font-family:Arial,sans-serif;font-size:10pt;line-height:1.35}
+ body>*:not(#printReport){display:none!important}
+ #printReport{display:block!important}
+ .report-title{font-size:16pt;font-weight:700;margin:0 0 12px;color:#111}
+ .report-section{font-size:11pt;font-weight:700;margin:0 0 5px}
+ .report-info{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:10pt}
+ .report-info td{padding:3px 12px 3px 0;vertical-align:top}
+ .report-info .label{font-weight:700;width:125px}
+ .report-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:10pt}
+ .report-table th{text-align:left;font-weight:700;padding:7px 6px;border:1px solid #777;background:#eee!important;color:#111!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .report-table td{padding:7px 6px;border:1px solid #777;vertical-align:top;overflow-wrap:anywhere;white-space:pre-wrap}
+ .report-table thead{display:table-header-group}
+ .report-table tr{break-inside:avoid;page-break-inside:avoid}
+ .report-table th:nth-child(1){width:50%}.report-table th:nth-child(2),.report-table th:nth-child(3){width:25%}
+ .report-notes{margin-top:14px;white-space:pre-wrap}
+ .report-notes strong{display:block;margin-bottom:4px}
+}
 </style>
-</head>
+<link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png"></head>
 <body>
-<header><div class="headrow"><div class="brandmark">XC</div><div><h1>Passenger Count</h1><p>Record and export passenger counts</p></div><div class="head-spacer"></div><button id="saveData" class="save-button" type="button">Save</button></div></header>
+<div id="printReport" aria-hidden="true"></div>
+<header><div class="head"><div class="logo" aria-hidden="true">🚆</div><div><h1>Train List Builder</h1><p class="sub">Paste a working timetable, format it, and export or share your train list</p></div></div></header>
 <main>
 <section class="card">
-<h2>Date and reason / notes — applies to all trains</h2>
-<div class="grid">
-<div class="field"><label for="date">Date</label><input id="date" type="date"></div>
-<div class="field" style="grid-column:span 2"><label for="reason">Reason for counts not being entered / notes for the day</label><textarea id="reason" rows="2" placeholder="e.g. Ticket machine battery dead, no machines available, or other notes for the day"></textarea></div>
+<h2>Train details</h2>
+<div class="fields">
+<label for="headcode">Headcode<input id="headcode" maxlength="4" placeholder="e.g. 1V48" autocomplete="off"></label>
+<label for="units">Unit number(s)<input id="units" placeholder="e.g. 220012 / 220013"></label>
+<label for="setType">Formation<select id="setType"><option>Single Set</option><option>Double Set</option></select></label>
+<label for="prepared">Prepared by<input id="prepared" placeholder="Enter name"></label>
 </div>
 </section>
-<section class="card">
-<div class="train-heading"><h2>Trains</h2><button id="addTrain" class="primary" aria-label="Add train">+ Add train</button></div>
-<div id="trains"></div>
+<section class="card" id="pasteCard">
+<h2>Paste timetable schedule</h2>
+<p class="help">Paste copied schedule text from your source below. Choose <strong>Build train list</strong> to identify station/time rows. You can edit the table afterwards. The original pasted text is retained as a fallback if the source format cannot be parsed.</p>
+<label for="rawSchedule">Copied schedule<textarea id="rawSchedule" placeholder="Paste timetable copied from Genius Mobile here…&#10;&#10;Example:&#10;Newcastle 06:40&#10;Durham 06:53 06:55&#10;Darlington 07:09 07:11"></textarea></label>
+<div class="actions no-print"><button class="dark" id="build" type="button">Build train list</button><button class="light" id="clearPaste" type="button">Clear pasted text</button><button class="light" id="addRow" type="button">＋ Add station</button></div>
+<p class="help" style="margin:10px 0 0">Parsing is best-effort: check all station names and timings against your source before using the list operationally.</p>
+<div class="status" id="status" role="status" aria-live="polite"></div>
+</section>
+<section class="card" id="listCard">
+<div id="outputHead"><h2>TRAIN LIST</h2><div class="print-meta" id="printMeta"></div></div>
+<h2 class="no-print">Timetable</h2>
+<div class="table-wrap"><table id="trainTable">
+<thead><tr><th style="width:36%">Station / location</th><th style="width:16%">Arrival</th><th style="width:16%">Departure</th><th style="width:14%">Platform</th><th style="width:18%">Notes</th><th class="no-print" style="width:1%"> </th></tr></thead>
+<tbody id="rows"></tbody></table></div>
 </section>
 <section class="card">
-<h2>Report</h2>
-<div class="actions"><button id="generate" class="primary">Generate report</button><button id="copy">Copy report</button><button id="email" class="secondary" style="grid-column:1 / -1">Email report</button></div>
-<div style="margin-top:12px"><label class="small" for="preview">Report preview</label><div id="preview" aria-live="polite">Generate a report to preview it here.</div></div>
+<h2>Notes</h2><label for="notes">Train list notes<textarea id="notes" placeholder="Add route notes, timing caveats, or other useful information…"></textarea></label>
+<div class="actions no-print">
+<button class="primary" id="copy" type="button">Copy timetable</button>
+<button class="dark" id="pdf" type="button">Export / Print PDF</button>
+<button class="primary" id="email" type="button">Email as table</button>
+<button class="light" id="clearAll" type="button">Clear train list</button>
+</div>
+<div class="status" id="actionStatus" role="status" aria-live="polite"></div>
+<p class="help no-print" style="margin-top:12px;margin-bottom:0">PDF: choose “Save as PDF” in the print dialog. Email: the formatted table is copied to your clipboard for pasting into an email, then your email app opens with a plain-text summary.</p>
 </section>
+<div class="note no-print"><strong>Operational reminder:</strong> this tool formats manually supplied information. It does not connect to a timetable system or verify live timings. Always confirm the schedule against the authorised operational source.</div>
 </main>
-<footer>Passenger Count</footer>
+<footer>Train List Builder · Independent staff utility</footer>
 <script>
+const tbody=document.getElementById('rows');
 const $=id=>document.getElementById(id);
-const now=new Date(),localDate=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);
-$('date').value=localDate;
-let trains=[],nextId=1,reportText='';
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function valid(v){let n=Number(v);return Number.isFinite(n)?Math.max(0,Math.floor(n)):0}
-function addTrain(){
- const id=nextId++,t={id,headcode:'',unit:'',full:false,entries:Array.from({length:15},()=>({station:'',first:'',standard:''}))};
- trains.push(t);renderTrains();
- document.getElementById('train-'+id)?.scrollIntoView({behavior:'smooth',block:'start'});
-}
-function renderTrains(){
- const host=$('trains');host.innerHTML='';
- trains.forEach((t,idx)=>{
-  const card=document.createElement('section');card.className='train-card';card.id='train-'+t.id;
-  card.innerHTML=`<div class="train-heading"><h2>Train ${idx+1}</h2>${trains.length>1?'<button class="danger remove" data-remove="'+t.id+'">Remove train</button>':''}</div>
-  <div class="grid">
-   <div class="field"><label>Headcode</label><input data-field="headcode" maxlength="4" placeholder="1V50" value="${esc(t.headcode)}" autocapitalize="characters"></div>
-   <div class="field"><label>Unit number</label><input data-field="unit" inputmode="numeric" maxlength="6" placeholder="6 digits" value="${esc(t.unit)}"></div>
-  </div>
-  <label class="checkline"><input data-field="full" type="checkbox" ${t.full?'checked':''}> This train was full and standing for a portion of its journey</label>
-  <div class="capacity-legend"><span><i class="capacity-dot" style="background:#e2f5e8"></i> Low (0–99)</span><span><i class="capacity-dot" style="background:#fff2c7"></i> Busy (100–149)</span><span><i class="capacity-dot" style="background:#ffe0e3"></i> High (150+)</span></div>
-  <div class="tablewrap"><table aria-label="Passenger counts for train ${idx+1}"><thead><tr><th>Station</th><th>First</th><th>Standard</th><th>Total</th></tr></thead><tbody>${t.entries.map((e,i)=>`<tr><td class="station"><input data-row="${i}" data-col="station" aria-label="Station ${i+1}" placeholder="Station" value="${esc(e.station)}"></td><td><input data-row="${i}" data-col="first" type="number" min="0" step="1" inputmode="numeric" aria-label="First count at station ${i+1}" value="${esc(e.first)}" placeholder="0"></td><td><input data-row="${i}" data-col="standard" type="number" min="0" step="1" inputmode="numeric" aria-label="Standard count at station ${i+1}" value="${esc(e.standard)}" placeholder="0"></td><td class="total">${valid(e.first)+valid(e.standard)}</td></tr>`).join('')}</tbody></table></div>`;
-  card.querySelectorAll('[data-field]').forEach(el=>el.addEventListener('input',()=>{
-   const field=el.dataset.field;
-   if(field==='headcode')el.value=el.value.toUpperCase().replace(/[^0-9A-Z]/g,'').slice(0,4);
-   if(field==='unit')el.value=el.value.replace(/\D/g,'').slice(0,6);
-   t[field]=field==='full'?el.checked:el.value;
-  }));
-  card.querySelectorAll('[data-row]').forEach(el=>el.addEventListener('input',()=>{
-   const i=Number(el.dataset.row),col=el.dataset.col;t.entries[i][col]=el.value;
-   const row=el.closest('tr');const total=valid(t.entries[i].first)+valid(t.entries[i].standard);row.querySelector('.total').textContent=total;row.querySelectorAll('td').forEach(td=>td.classList.remove('capacity-green','capacity-amber','capacity-red'));const grade=total>=150?'capacity-red':total>=100?'capacity-amber':'capacity-green';row.querySelectorAll('td').forEach((td,j)=>{if(j>0)td.classList.add(grade);});
-  }));
-  card.querySelectorAll('[data-remove]').forEach(btn=>btn.addEventListener('click',()=>{if(confirm('Remove this train and its counts?')){trains=trains.filter(x=>x.id!==Number(btn.dataset.remove));renderTrains();}}));
-  card.querySelectorAll('tbody tr').forEach(row=>{const cells=row.querySelectorAll('td');const total=valid(row.querySelector('[data-col="first"]').value)+valid(row.querySelector('[data-col="standard"]').value);const grade=total>=150?'capacity-red':total>=100?'capacity-amber':'capacity-green';cells.forEach((td,j)=>{if(j>0)td.classList.add(grade);});});
-  host.appendChild(card);
+function addRow(v={}){
+ const tr=document.createElement('tr');
+ [['station','Station / location'],['arrival','Arrival'],['departure','Departure'],['platform','Platform'],['notes','Notes']].forEach(([key,label])=>{
+  const td=document.createElement('td');
+  if(key==='station'||key==='notes'){
+   const inp=document.createElement(key==='notes'?'textarea':'input');
+   inp.setAttribute('aria-label',label);inp.dataset.field=key;inp.value=v[key]||'';
+   if(key==='notes'){inp.rows=1;inp.style.minHeight='38px';inp.style.padding='8px';}
+   td.appendChild(inp);
+  } else {
+   const inp=document.createElement('input');inp.setAttribute('aria-label',label);inp.dataset.field=key;inp.value=v[key]||'';inp.placeholder=key==='platform'?'': 'HH:MM';td.appendChild(inp);
+  }
+  tr.appendChild(td);
  });
+ const td=document.createElement('td');td.className='no-print';const b=document.createElement('button');b.type='button';b.textContent='×';b.title='Remove station';b.className='light';b.style.padding='7px 9px';b.onclick=()=>tr.remove();td.appendChild(b);tr.appendChild(td);tbody.appendChild(tr);
 }
-function dateUK(d){if(!d)return '';const p=d.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d;}
-function reportFor(t,idx){
- const lines=[`TRAIN ${idx+1}: ${t.headcode||'Headcode not entered'}`];if(t.unit)lines.push(`UNIT: ${t.unit}`);
- if(t.full)lines.push('This Train was full and standing for a portion of its journey');
- lines.push('');
- t.entries.filter(e=>e.station||e.first!==''||e.standard!=='').forEach(e=>lines.push(`${e.station||'Station not entered'} - ${valid(e.first)} - ${valid(e.standard)} - (total ${valid(e.first)+valid(e.standard)} passengers)`));
+function getRows(){return [...tbody.querySelectorAll('tr')].map(tr=>Object.fromEntries([...tr.querySelectorAll('[data-field]')].map(i=>[i.dataset.field,i.value.trim()]))).filter(r=>Object.values(r).some(Boolean))}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function tableHtml(){
+ const data=getRows();return '<table style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:10pt"><thead><tr>'+['Station / location','Arrival','Departure','Platform','Notes'].map(x=>'<th style="background:#A50034;color:#fff;text-align:left;padding:7px;border:1px solid #ccc">'+x+'</th>').join('')+'</tr></thead><tbody>'+data.map(r=>'<tr>'+['station','arrival','departure','platform','notes'].map(k=>'<td style="padding:7px;border:1px solid #ccc">'+escapeHtml(r[k])+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+function plainText(){
+ const lines=['TRAIN LIST','Headcode: '+$('headcode').value.toUpperCase(),'Unit number(s): '+$('units').value,'Formation: '+$('setType').value,'Prepared by: '+$('prepared').value,'','Station / location | Arrival | Departure | Platform | Notes','-' .repeat(65)];
+ getRows().forEach(r=>lines.push([r.station,r.arrival,r.departure,r.platform,r.notes].join(' | ')));
+ if($('notes').value.trim())lines.push('','NOTES', $('notes').value.trim());
  return lines.join('\n');
 }
-function buildReport(){
- for(const t of trains){if(t.headcode&&!/^[0-9][A-Z][0-9]{2}$/.test(t.headcode)){alert('Enter a valid 4-character headcode, e.g. 1V50.');return false;}if(t.unit&&!/^\d{6}$/.test(t.unit)){alert('Unit number must be six digits.');return false;}}
- const chunks=[`PASSENGER COUNTS — ${dateUK($('date').value||localDate)}`];if($('reason').value.trim())chunks.push('Reason / Notes: '+$('reason').value.trim());chunks.push('');
- trains.forEach((t,i)=>chunks.push(reportFor(t,i)));reportText=chunks.join('\n\n--------------------\n\n');$('preview').textContent=reportText;return true;
+function build(){
+ const raw=$('rawSchedule').value.trim();if(!raw){$('status').textContent='Paste the schedule copied from Genius Mobile first.';return}
+ const timeRe=/\b(?:[01]?\d|2[0-3]):[0-5]\d\b/g;const parsed=[];
+ raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
+  const times=line.match(timeRe)||[];if(!times.length)return;
+  const station=line.replace(timeRe,' ').replace(/[|,;]+/g,' ').replace(/\s{2,}/g,' ').replace(/^[\s\-:]+|[\s\-:]+$/g,'').trim();
+  if(!station)return;
+  parsed.push({station,arrival:times.length>1?times[0]:'',departure:times.length>1?times[1]:times[0],platform:'',notes:times.length>2?'Additional times: '+times.slice(2).join(', '):''});
+ });
+ if(parsed.length){tbody.innerHTML='';parsed.forEach(addRow);$('status').textContent='Identified '+parsed.length+' possible station row(s). Check and edit the table before exporting.'}
+ else {$('status').textContent='No simple station/time rows recognised. Add rows manually; pasted source text remains above.'}
 }
-const SAVE_KEY='xc-passenger-count-current-session-v1';
-function saveCurrentData(showMessage=true){
- const payload={date:$('date').value||localDate,reason:$('reason').value,trains,nextId};
- try{localStorage.setItem(SAVE_KEY,JSON.stringify(payload));if(showMessage)alert('Current passenger counts saved on this device.');return true;}
- catch(e){if(showMessage)alert('Could not save data on this device. Check available browser storage.');return false;}
+function updatePrintReport(){
+ const rows = getRows();
+ const info = [
+  ['Headcode',$('headcode').value.toUpperCase()],
+  ['Unit number(s)',$('units').value],
+  ['Formation',$('setType').value],
+  ['Prepared by',$('prepared').value]
+ ];
+ $('printReport').innerHTML =
+  '<h1 class="report-title">TRAIN LIST</h1>'+
+  '<h2 class="report-section">TRAIN INFO</h2>'+
+  '<table class="report-info"><tbody>'+info.map(([k,v])=>'<tr><td class="label">'+escapeHtml(k)+'</td><td>'+escapeHtml(v||'—')+'</td></tr>').join('')+'</tbody></table>'+
+  '<table class="report-table"><thead><tr><th>Station stop</th><th>ARRIVAL</th><th>DEPARTURE</th></tr></thead><tbody>'+
+  rows.map(r=>'<tr><td>'+escapeHtml(r.station||'')+'</td><td>'+escapeHtml(r.arrival||'')+'</td><td>'+escapeHtml(r.departure||'')+'</td></tr>').join('')+
+  '</tbody></table>'+
+  ($('notes').value.trim()?'<div class="report-notes"><strong>NOTES</strong>'+escapeHtml($('notes').value.trim())+'</div>':'');
 }
-function restoreSavedData(){
+$('build').onclick=build;
+$('addRow').onclick=()=>addRow();
+$('clearPaste').onclick=()=>{$('rawSchedule').value='';$('status').textContent='Pasted text cleared.'};
+$('headcode').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase());
+$('copy').onclick=async()=>{
+ const html=tableHtml(),text=plainText();
  try{
-  const raw=localStorage.getItem(SAVE_KEY);if(!raw)return false;
-  const saved=JSON.parse(raw);if(!saved||!Array.isArray(saved.trains)||!saved.trains.length)return false;
-  $('date').value=saved.date||localDate;$('reason').value=saved.reason||'';
-  trains=saved.trains.map((t,i)=>({id:Number(t.id)||i+1,headcode:String(t.headcode||''),unit:String(t.unit||''),full:!!t.full,entries:Array.from({length:15},(_,j)=>{const e=(t.entries||[])[j]||{};return {station:String(e.station||''),first:String(e.first??''),standard:String(e.standard??'')}})}));
-  nextId=Math.max(Number(saved.nextId)||1,...trains.map(t=>t.id+1));renderTrains();return true;
- }catch(e){return false;}
-}
-$('saveData').onclick=()=>saveCurrentData(true);
-$('addTrain').onclick=addTrain;
-$('generate').onclick=buildReport;
-$('copy').onclick=async()=>{if(!buildReport())return;try{await navigator.clipboard.writeText(reportText);alert('Report copied.')}catch(e){alert('Copy is not available in this browser. Select the report preview and copy it manually.')}};
-$('email').onclick=()=>{if(!buildReport())return;const subject=encodeURIComponent('Passenger counts on '+dateUK($('date').value||localDate)+' for '+trains.map(t=>t.headcode||'HEADCODES').join(', '));let body=[];if($('reason').value.trim())body.push($('reason').value.trim());body.push('');trains.forEach((t,i)=>{body.push((t.headcode||'Headcode')+(t.full?' — TRAIN WAS FULL AND STANDING':''));body.push('');t.entries.filter(e=>e.station||e.first!==''||e.standard!=='').forEach(e=>body.push(`${e.station||'Station not entered'} - ${valid(e.first)} - ${valid(e.standard)} - (total ${valid(e.first)+valid(e.standard)} passengers)`));if(i<trains.length-1)body.push('','--------------------','');});window.location.href='mailto:?subject='+subject+'&body='+encodeURIComponent(body.join('\n'));};
-if(!restoreSavedData())addTrain();
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  if(navigator.clipboard&&window.ClipboardItem){
+   await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([text],{type:'text/plain'})})]);
+  }else{await navigator.clipboard.writeText(text)}
+  $('actionStatus').textContent='Train list copied. Paste it into your destination app.';
+ }catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();$('actionStatus').textContent='Plain-text train list copied.'}
+};
+$('pdf').onclick=()=>{if(!getRows().length){$('actionStatus').textContent='Add or import at least one timetable row before exporting.';return}updatePrintReport();document.title='Train-List-'+($('headcode').value||'Train');window.print()};
+$('email').onclick=async()=>{
+ const html='<h2>Train List — '+escapeHtml($('headcode').value.toUpperCase())+'</h2><p><strong>Unit number(s):</strong> '+escapeHtml($('units').value||'—')+' &nbsp; <strong>Formation:</strong> '+escapeHtml($('setType').value)+'<br><strong>Prepared by:</strong> '+escapeHtml($('prepared').value||'—')+'</p>'+tableHtml()+($('notes').value.trim()?'<p><strong>Notes:</strong><br>'+escapeHtml($('notes').value).replace(/\n/g,'<br>')+'</p>':'');
+ try{if(navigator.clipboard&&window.ClipboardItem)await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob([plainText()],{type:'text/plain'})})]);else await navigator.clipboard.writeText(plainText());}
+ catch(e){}
+ const subject=encodeURIComponent('Train List '+$('headcode').value.toUpperCase());
+ const body=encodeURIComponent(plainText()+'\n\nThe formatted table has been copied to the clipboard. Paste it into the email body for a table layout.');
+ window.location.href='mailto:?subject='+subject+'&body='+body;
+ $('actionStatus').textContent='Email draft opened. Paste the copied formatted table into the message body for table formatting.';
+};
+$('clearAll').onclick=()=>{if(confirm('Clear all train list details and timetable rows?')){$('headcode').value='';$('units').value='';$('setType').value='Single Set';$('prepared').value='';$('rawSchedule').value='';$('notes').value='';tbody.innerHTML='';addRow();addRow();$('status').textContent='';$('actionStatus').textContent='Train list cleared.'}};
+addRow();addRow();addRow();
 </script>
-</body></html>
+<script>if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});</script></body>
+</html>

@@ -330,7 +330,7 @@ function render(){
  <label>Headcode</label><input value="${esc(t.headcode)}" placeholder="e.g. 1V50" oninput="update(${ti},'headcode',this.value)">
   <label>Unit Number (6 digits)</label><input type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" value="${esc(t.unitNumber||"")}" placeholder="e.g. 221101" oninput="update(${ti},'unitNumber',this.value.replace(/\\D/g,'').slice(0,6));this.value=this.value.replace(/\\D/g,'').slice(0,6)" aria-label="Unit Number, six digits">
   <button type="button" class="full-standing-btn ${t.fullAndStanding?'is-active':''}" aria-pressed="${t.fullAndStanding?'true':'false'}" onclick="toggleFullStanding(${ti})">${t.fullAndStanding?'✓ FULL AND STANDING':'⚠ FULL AND STANDING'}</button>
- <table><thead><tr><th scope="col">Station</th><th scope="col">First Class</th><th scope="col">Standard</th><th scope="col">Total Passengers</th><th scope="col">Submitted</th></tr></thead>
+ <table class="passenger-entry-table"><thead><tr><th scope="col">Station</th><th scope="col">First Class</th><th scope="col">Standard</th><th scope="col">Total Passengers</th><th scope="col">Submitted</th></tr></thead>
  <tbody>${t.rows.map((r,ri)=>`<tr>
  <td><input value="${esc(r.station)}" oninput="updateRow(${ti},${ri},'station',this.value)"></td>
  <td><input class="${countClass('first',r.first)}" type="text" inputmode="numeric" pattern="[0-9]{1,3}" maxlength="3" value="${esc(r.first)}" oninput="handleCountInput(this,${ti},${ri},'first')" aria-label="First Class passengers, 0 to 999"></td>
@@ -684,5 +684,16 @@ document.addEventListener('DOMContentLoaded', function () {
   .train-block td input:not([type="checkbox"]){height:36px!important;padding:2px 1px!important;font-size:15px!important}
   .train-block input[type="checkbox"]{width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important}
 }
+</style>
+
+<style id="restore-passenger-entry-table">
+/* Keep the passenger entry table present and visible on desktop and mobile. */
+.train-block table.passenger-entry-table{display:table!important;visibility:visible!important;opacity:1!important;width:100%!important;max-width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;margin-top:10px!important;}
+.train-block table.passenger-entry-table thead{display:table-header-group!important;}
+.train-block table.passenger-entry-table tbody{display:table-row-group!important;}
+.train-block table.passenger-entry-table tr{display:table-row!important;}
+.train-block table.passenger-entry-table th,.train-block table.passenger-entry-table td{display:table-cell!important;visibility:visible!important;}
+.train-block table.passenger-entry-table td input:not([type=checkbox]){width:100%!important;max-width:100%!important;min-width:0!important;display:block!important;}
+@media(max-width:520px){.train-block table.passenger-entry-table{font-size:11px!important}.train-block table.passenger-entry-table th,.train-block table.passenger-entry-table td{padding:4px 2px!important}.train-block table.passenger-entry-table th:nth-child(1),.train-block table.passenger-entry-table td:nth-child(1){width:33%!important}.train-block table.passenger-entry-table th:nth-child(2),.train-block table.passenger-entry-table td:nth-child(2){width:15%!important}.train-block table.passenger-entry-table th:nth-child(3),.train-block table.passenger-entry-table td:nth-child(3){width:18%!important}.train-block table.passenger-entry-table th:nth-child(4),.train-block table.passenger-entry-table td:nth-child(4){width:21%!important}.train-block table.passenger-entry-table th:nth-child(5),.train-block table.passenger-entry-table td:nth-child(5){width:13%!important}}
 </style>
 </body></html>

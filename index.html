@@ -22,7 +22,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:7px 4px;border-bottom:1p
 .train-block table{width:100%;border-collapse:collapse;margin-top:10px}
 .train-block th,.train-block td{border:1px solid #bbb;padding:6px}
 .train-block input{width:100%;box-sizing:border-box}
-.pdf-action{margin:10px 0}.pdf-action button{width:100%;background:#222;color:#fff;border:0;border-radius:10px;padding:12px;font-weight:800}</style>
+.pdf-action{margin:10px 0}.pdf-action button{width:100%;background:#222;color:#fff;border:0;border-radius:10px;padding:12px;font-weight:800}.station-row-hint{margin: -4px 0 10px;color:#666;font-size:12px;line-height:1.35}
+</style>
 <style id="xc-safe-area">
 html{background:#b5121b}
 body{padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
@@ -239,6 +240,39 @@ input,select,textarea{font-size:16px!important}
   .train-block tbody td:nth-child(2)::before,.train-block tbody td:nth-child(3)::before,.train-block tbody td:nth-child(4)::before{font-size:9px}
 }
 </style>
+
+<style id="mobile-station-input-layout-fix">
+/* Mobile input layout: each station is a compact, readable card rather than a squeezed table. */
+.train-block{min-width:0;width:100%;}
+.train-block table{width:100%;max-width:100%;}
+@media(max-width:520px){
+  main{padding:10px 10px 28px;}
+  .train-block{padding:10px;margin:10px 0;overflow:visible;}
+  .train-block table,.train-block tbody{display:block;width:100%;max-width:100%;}
+  .train-block thead{display:none;}
+  .train-block tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;padding:10px 0;border-bottom:1px solid #ddd;}
+  .train-block tbody td{display:block;min-width:0;width:auto;max-width:100%;padding:0!important;border:0;}
+  .train-block tbody td:first-child{grid-column:1/-1;}
+  .train-block tbody td:first-child::before{content:'STATION';display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px;}
+  .train-block tbody td:nth-child(2)::before{content:'FIRST CLASS';display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px;white-space:nowrap;}
+  .train-block tbody td:nth-child(3)::before{content:'STANDARD';display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px;white-space:nowrap;}
+  .train-block tbody td:nth-child(4){display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;text-align:left!important;min-width:0;font-variant-numeric:tabular-nums;}
+  .train-block tbody td:nth-child(4)::before{content:'TOTAL';display:block;font-size:10px;font-weight:800;color:#555;margin:0 0 4px;white-space:nowrap;}
+  .train-block tbody td:nth-child(5){grid-column:1/-1;display:flex;align-items:center;justify-content:flex-start;gap:10px;padding-top:2px!important;}
+  .train-block tbody td:nth-child(5)::before{content:'ENTERED INTO STAR';font-size:10px;font-weight:800;color:#555;}
+  .train-block tbody td input:not([type=checkbox]){display:block;width:100%;min-width:0;max-width:100%;height:44px;padding:8px 6px!important;font-size:16px!important;border-radius:8px;}
+  .train-block tbody td:first-child input{font-weight:700;}
+  .train-block tbody td input[type=checkbox]{flex:0 0 22px;width:22px;height:22px;min-width:22px;min-height:22px;}
+  .train-block .passenger-actions{display:flex;}
+  .train-block .passenger-actions button{min-width:0;width:100%;}
+}
+@media(max-width:360px){
+  .train-block tbody tr{gap:6px;}
+  .train-block tbody td:nth-child(2)::before,.train-block tbody td:nth-child(3)::before,.train-block tbody td:nth-child(4)::before{font-size:9px;letter-spacing:-.1px;}
+  .train-block tbody td input:not([type=checkbox]){padding:7px 4px!important;}
+}
+</style>
+
 </head><body><header class="xc-compact-header"><img alt="XC" class="xc-page-header-logo" src="crosscountry-logo-white.png"/></header>
 <header><div class="heading">👥 Manual Passenger Counts</div></header><div class="main-menu-wrap"></div>
 <section id="archive-calendar-panel" class="archive-calendar-panel" hidden>
@@ -311,7 +345,7 @@ function render(){
  const notes=document.getElementById("reasonNotes"); if(notes && notes.value!==reasonNotes) notes.value=reasonNotes;
  document.getElementById("trains").innerHTML=trains.map((t,ti)=>`
  <section class="train-block">
- <h3>Train ${ti+1}</h3>
+ <h3>Train ${ti+1}</h3><p class="station-row-hint">10 station rows included for this headcode · use ＋ Add Station for more</p>
  <label>Date (DD/MM/YYYY)</label><input type="text" inputmode="numeric" placeholder="DD/MM/YYYY" value="${esc(formatDateDMY(t.date))}" onchange="updateDateDMY(${ti},this.value)" onblur="formatDateInput(this,${ti})">
  <label>Headcode</label><input value="${esc(t.headcode)}" placeholder="e.g. 1V50" oninput="update(${ti},'headcode',this.value)">
   <label>Unit Number (6 digits)</label><input type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" value="${esc(t.unitNumber||"")}" placeholder="e.g. 221101" oninput="update(${ti},'unitNumber',this.value.replace(/\\D/g,'').slice(0,6));this.value=this.value.replace(/\\D/g,'').slice(0,6)" aria-label="Unit Number, six digits">

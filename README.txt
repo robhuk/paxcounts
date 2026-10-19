@@ -1,17 +1,23 @@
-TRAIN LIST PWA
+XC PASSENGER COUNTS PWA
+========================
 
-Files:
-- index.html: Train List Builder
-- manifest.webmanifest: installable app metadata
-- sw.js: offline cache/service worker
-- icon-192.png and icon-512.png: app icons
+Contents
+- index.html: app
+- manifest.json: install metadata
+- service-worker.js: offline caching
+- icons/: app icons
 
-To install:
-1. Upload all files in this folder to the same directory on an HTTPS web host.
-2. Open the hosted page in a supported browser.
-3. Android/Chrome: use Install app or Add to Home screen.
-4. iPhone/iPad: open in Safari, tap Share, then Add to Home Screen.
+Features
+- Four train/headcode sections, each with 10 station rows
+- First class, standard class, auto-calculated totals and count-entered checkbox
+- Six-digit unit number field, date, notes, per-train Full and Standing flags
+- Local device storage and date-based saved-entry archive
+- Print / Save PDF layout
+- Installable PWA with offline shell caching
 
-Note: Service workers require HTTPS (or localhost). The app can be opened as a local HTML file,
-but installation and offline caching require hosting over HTTPS. Clipboard and mail behavior
-depends on browser permissions and installed apps.
+Run / install
+1. Upload the files to a web host that supports HTTPS, keeping the folder structure.
+2. Open index.html from the hosted URL in your browser.
+3. Use the browser's Add to Home Screen / Install App option.
+
+Note: Browser local storage is local to that browser/device. Use Print / Save PDF to create a portable record.

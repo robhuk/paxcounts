@@ -1,18 +1,29 @@
-const CACHE_NAME = 'train-list-v1';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+/* Passenger Count PWA — unique cache namespace; preserve local data on updates. */
+const CACHE_NAME = 'xc-passenger-count-pwa-shell-v1';
+const SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
-  self.skipWaiting();
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))));
-  self.clients.claim();
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(key=>key.startsWith('xc-passenger-count-pwa-shell-')&&key!==CACHE_NAME).map(key=>caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-    const copy = response.clone();
-    caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-    return response;
-  }).catch(() => caches.match('./index.html'))));
+  if(event.request.method!=='GET') return;
+  const url=new URL(event.request.url);
+  if(url.origin!==self.location.origin) return;
+  event.respondWith((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    const cached=await cache.match(event.request);
+    try{
+      const response=await fetch(event.request);
+      if(response&&response.ok&&event.request.url.startsWith(self.location.origin)) cache.put(event.request,response.clone());
+      return response;
+    }catch(err){
+      return cached || await cache.match('./index.html') || Response.error();
+    }
+  })());
 });

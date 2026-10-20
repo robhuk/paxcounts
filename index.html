@@ -1,100 +1,211 @@
 <!doctype html>
-<html lang="en-GB">
+<html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#B92C43"><meta name="description" content="CrossCountry passenger count entry app">
-<link rel="manifest" href="manifest.json"><link rel="icon" href="icons/icon-192.png">
-<title>XC Passenger Counts</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b51f36">
+<meta name="description" content="Offline-friendly passenger count tool">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>Passenger Count</title>
 <style>
-:root{--red:#B92C43;--amber:#FFB300;--cream:#F5F1E8;--ink:#242424;--muted:#686868;--line:#e4dfd5;--white:#fff}
-*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{background:var(--red);color:white;padding:18px 16px 20px;border-bottom:5px solid var(--amber)}header .brand{font-weight:900;letter-spacing:.04em;font-size:13px}h1{font-size:24px;line-height:1.1;margin:7px 0 4px}header p{margin:0;font-size:13px;opacity:.95}
-main{max-width:1000px;margin:auto;padding:14px; padding-bottom:40px}.card{background:white;border-radius:16px;padding:15px;margin:0 0 14px;box-shadow:0 2px 8px #352a1910;border:1px solid #eee9e0}
-h2{font-size:18px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{min-width:0}.field label{display:block;font-size:12px;font-weight:750;color:#555;margin-bottom:5px}.field input,.field textarea,.field select{width:100%;min-width:0;border:1px solid #d6d1c8;border-radius:9px;padding:11px;font:inherit;background:#fff;color:var(--ink)}input:focus,textarea:focus,select:focus{outline:2px solid #e9a0ac;outline-offset:1px}.wide{grid-column:1/-1}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}.btn{border:0;border-radius:10px;padding:11px 14px;font-weight:800;font-size:14px;cursor:pointer;background:var(--red);color:white}.btn.secondary{background:#fff;color:var(--red);border:1px solid var(--red)}.btn.amber{background:var(--amber);color:#242424}.btn:active{transform:translateY(1px)}
-.train{border-top:4px solid var(--red)}.train-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.train-head h2{margin:0}.train-badge{font-size:11px;background:var(--cream);border-radius:30px;padding:5px 9px;font-weight:800}
-.train-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.toggles{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 14px}.toggle{display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;font-size:13px;font-weight:700}.toggle input{width:18px;height:18px;accent-color:var(--red)}
-.count-head{display:grid;grid-template-columns:minmax(0,1.3fr) .7fr .7fr .65fr 42px;gap:5px;padding:0 3px 6px;color:#666;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.03em}
-.count-row{display:grid;grid-template-columns:minmax(0,1.3fr) .7fr .7fr .65fr 42px;gap:5px;align-items:center;margin-bottom:6px}
-.count-row input{width:100%;min-width:0;border:1px solid #ddd7ce;border-radius:8px;padding:9px 5px;font:inherit;font-size:14px}
-.count-row .station{font-size:13px;padding-left:8px}.count-row .total{background:#f4f1eb;font-weight:800;text-align:center}.count-row .entered{width:20px;height:20px;accent-color:var(--red);justify-self:center}
-.row-num{display:none}.notes{margin-top:12px}
-.small-note{color:var(--muted);font-size:12px;margin:8px 0 0}.archive-list{display:grid;gap:8px}.archive-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border:1px solid var(--line);border-radius:10px}.archive-item strong{font-size:14px}.archive-item span{display:block;color:var(--muted);font-size:12px}.archive-actions{display:flex;gap:6px}.archive-actions button{padding:7px 9px;font-size:12px}
-.status{font-size:12px;color:#555;margin-left:auto;align-self:center}.hidden{display:none!important}
-@media(min-width:700px){main{padding:22px}.trains-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.train{margin:0}.card{padding:18px}}
-@media(max-width:420px){main{padding:10px}.card{padding:12px;border-radius:13px}.count-head{grid-template-columns:minmax(0,1.2fr) .65fr .65fr .6fr 32px;font-size:9px;gap:3px}.count-row{grid-template-columns:minmax(0,1.2fr) .65fr .65fr .6fr 32px;gap:3px}.count-row input{padding:9px 2px;font-size:13px}.count-row .station{padding-left:5px;font-size:12px}.count-row .entered{width:18px;height:18px}.grid{gap:9px}}
-@media print{body{background:#fff;font-size:11px}header{padding:10px 12px;border-bottom:3px solid var(--amber);print-color-adjust:exact;-webkit-print-color-adjust:exact}h1{font-size:19px}main{max-width:none;padding:8px}.card{box-shadow:none;border:1px solid #bbb;border-radius:5px;padding:9px;margin-bottom:8px;break-inside:avoid}.toolbar,.no-print,.archive-card,.remove-train{display:none!important}.trains-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.train{margin:0}.train-meta{gap:5px}.field input,.field textarea{padding:5px;border-color:#aaa}.count-row input{padding:4px 2px;font-size:10px;border-color:#aaa}.count-head{font-size:8px}.count-row{margin-bottom:3px}.count-row .entered{width:14px;height:14px}.toggle{padding:3px 5px}.notes textarea{min-height:42px}.print-title{display:block!important}}
-.print-title{display:none}
+:root{--red:#b51f36;--red-dark:#8f172a;--navy:#252b35;--ink:#17202b;--muted:#647080;--line:#dce1e7;--paper:#fff;--bg:#f3f5f7;--green:#176b3a}
+*{box-sizing:border-box}html{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}body{margin:0;padding:0 0 env(safe-area-inset-bottom)}button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation}.topbar{position:sticky;top:0;z-index:5;background:var(--navy);color:white;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;box-shadow:0 2px 10px #0002}.brand{display:flex;align-items:center;gap:10px;max-width:1000px;margin:0 auto 10px}.logo{width:42px;height:42px;flex:none}.brand h1{font-size:1.15rem;line-height:1.15;margin:0}.brand p{font-size:.76rem;color:#d5d9df;margin:3px 0 0}.save{margin-left:auto;background:#fff;color:var(--red-dark);font-weight:800;border:0;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:7px}.toolbar{max-width:1000px;margin:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.btn{border:1px solid var(--line);background:white;color:var(--ink);border-radius:10px;padding:11px 10px;font-weight:650;min-height:43px}.btn.primary{background:var(--red);border-color:var(--red);color:white}.btn.dark{background:var(--navy);border-color:var(--navy);color:white}.btn.danger{color:var(--red-dark);border-color:#e5b7bf;background:#fff8f9}.btn.small{padding:8px 10px;min-height:36px;font-size:.88rem}.container{max-width:1000px;margin:14px auto;padding:0 12px 28px}.notice{font-size:.8rem;line-height:1.4;color:#4c3c16;background:#fff4d5;border:1px solid #f1dfa4;border-radius:10px;padding:10px 12px;margin-bottom:12px}.panel,.train-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:13px;box-shadow:0 2px 6px #17202b08}.section-title{font-size:1rem;font-weight:800;margin:0 0 12px}.field-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.field label{display:block;font-size:.78rem;font-weight:750;color:#505b68;margin:0 0 5px}.field input{width:100%;min-width:0;border:1px solid #cbd2db;border-radius:9px;padding:10px;background:white;color:var(--ink)}.field input:focus,.count-input:focus{outline:2px solid #d98b98;outline-offset:1px}.train-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}.train-head h2{font-size:1rem;margin:0}.train-head .spacer{flex:1}.check-wrap{display:flex;align-items:center;gap:8px;border:1px solid #e6c4ca;background:#fff7f8;border-radius:10px;padding:10px 11px;margin:12px 0 0;font-weight:700;font-size:.9rem}.check-wrap input{width:20px;height:20px;accent-color:var(--red)}.table-wrap{width:100%;overflow-x:auto;margin-top:12px}.count-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:.83rem}.count-table th{background:#f0f2f5;color:#374151;font-weight:750;font-size:.75rem;padding:9px 5px;text-align:left;border-bottom:1px solid var(--line)}.count-table th:first-child{border-radius:8px 0 0 0}.count-table th:last-child{border-radius:0 8px 0 0}.count-table td{padding:6px 4px;border-bottom:1px solid #e9edf1;vertical-align:middle}.count-table th:nth-child(1){width:39%}.count-table th:nth-child(2),.count-table th:nth-child(3){width:22%}.count-table th:nth-child(4){width:13%}.count-table th:nth-child(5){width:8%}.station-input,.count-input{width:100%;min-width:0;border:1px solid #d1d7df;border-radius:7px;padding:9px 5px;background:white}.count-input{text-align:center;font-variant-numeric:tabular-nums}.total{font-weight:800;text-align:center;font-variant-numeric:tabular-nums}.submitted{width:19px;height:19px;accent-color:var(--green)}.table-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}.muted{font-size:.78rem;color:var(--muted)}.train-total{font-weight:800;text-align:right;margin-top:10px}.add-train{width:100%;margin-bottom:13px}.exports{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.footer-note{text-align:center;font-size:.75rem;color:var(--muted);padding:8px}.status{min-height:1.1em;font-size:.8rem;color:var(--green);font-weight:650;margin:8px 0 0}.modal{position:fixed;inset:0;z-index:20;background:#10151dcc;display:flex;flex-direction:column;padding:12px;padding-top:calc(12px + env(safe-area-inset-top));}.modal[hidden]{display:none}.modal-head{display:flex;gap:8px;align-items:center;color:white;margin:0 auto 10px;width:100%;max-width:900px}.modal-head strong{flex:1}.preview{background:white;color:#111;overflow:auto;flex:1;width:100%;max-width:900px;margin:0 auto;border-radius:8px;padding:20px}.preview h1{font-size:1.35rem;margin-top:0}.preview h2{font-size:1.05rem;margin:22px 0 7px}.preview table{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:12px}.preview th,.preview td{border:1px solid #bbb;padding:5px;text-align:left}.preview th{background:#eee}.preview .report-meta{font-size:13px;line-height:1.6}.empty{padding:22px;text-align:center;color:var(--muted)}@media(min-width:650px){.toolbar{grid-template-columns:repeat(3,1fr)}.field-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.container{padding-left:18px;padding-right:18px}.panel,.train-card{padding:18px}}@media(max-width:370px){.toolbar{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.toolbar .btn{font-size:.78rem;padding:9px 4px}.field-grid{gap:7px}.count-table{font-size:.76rem}.count-table th{font-size:.68rem}.count-table th:nth-child(1){width:37%}.count-table th:nth-child(2),.count-table th:nth-child(3){width:23%}.count-table th:nth-child(4){width:13%}.count-table th:nth-child(5){width:8%}.station-input,.count-input{padding:8px 3px}.panel,.train-card{padding:11px}}@media print{body{background:white}.topbar,.container,.modal-head{display:none!important}.modal{position:static;display:block!important;background:white;padding:0}.preview{max-width:none;overflow:visible;padding:0;border-radius:0}.preview h1{font-size:18pt}.preview h2{break-after:avoid}.preview table{break-inside:avoid}.preview .train-report{break-inside:avoid}@page{margin:12mm}}
 </style>
 </head>
 <body>
-<header><div class="brand">CROSSCOUNTRY · STAFF TOOL</div><h1>Passenger Counts</h1><p>Record first class and standard class passenger numbers</p></header>
-<main>
-<section class="card">
-<h2>Journey details</h2>
-<div class="grid">
-<div class="field"><label for="serviceDate">DATE</label><input id="serviceDate" type="date" required></div>
-
-<div class="field wide"><label for="notes">NOTES</label><textarea id="notes" rows="2" placeholder="Add any relevant notes…"></textarea></div>
-</div>
-<div class="toolbar no-print">
-<button class="btn" id="addTrainBtn">＋ Add train</button><button class="btn" id="saveBtn">Save counts</button><button class="btn amber" id="exportBtn">Print / Save PDF</button><button class="btn secondary" id="newBtn">New entry</button><span class="status" id="status" aria-live="polite">Autosave on</span>
-</div>
-<p class="small-note">One train is shown to start. Use Add train to add more whenever needed. Each train has 10 station rows. Totals calculate automatically. Tick “Count entered” when that row is complete.</p>
-</section>
-<div class="print-title"><strong>XC Passenger Counts</strong></div>
-<div class="trains-grid" id="trains"></div>
-<section class="card archive-card no-print">
-<h2>Saved entries</h2>
-<div class="grid" style="margin-bottom:10px">
-<div class="field"><label for="archiveDate">SHOW ENTRIES FOR DATE</label><input id="archiveDate" type="date"></div>
-<div class="field" style="display:flex;align-items:end"><button class="btn secondary" id="showArchive">Show date</button></div>
-</div>
-<div id="archiveList" class="archive-list"><p class="small-note">Saved entries will appear here.</p></div>
-</section>
+<header class="topbar">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 48 48" role="img" aria-label="Passenger Count logo"><rect width="48" height="48" rx="10" fill="#b51f36"/><path d="M11 10h26v21a5 5 0 0 1-5 5H16a5 5 0 0 1-5-5z" fill="#fff"/><path d="M15 15h18v10H15z" fill="#252b35"/><path d="M16 31h4m8 0h4M17 40l4-4m10 4-4-4" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="M8 42h32" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    <div><h1>Passenger Count</h1><p>CrossCountry-inspired passenger counting</p></div>
+    <button class="save" id="saveBtn" type="button" title="Save passenger count">✓ Save</button>
+  </div>
+  <nav class="toolbar" aria-label="Report actions">
+    <button class="btn" id="copyBtn" type="button">Copy to Clipboard</button>
+    <button class="btn" id="emailBtn" type="button">Copy to Email</button>
+    <button class="btn primary" id="pdfBtn" type="button">PDF / Print</button>
+  </nav>
+</header>
+<main class="container">
+  <div class="notice"><strong>Important:</strong> Make sure to check for engineering work or other short-term alterations before relying on any operational information.</div>
+  <section class="panel">
+    <h2 class="section-title">Count details</h2>
+    <div class="field-grid">
+      <div class="field"><label for="countDate">Date</label><input id="countDate" type="date"></div>
+      <div class="field"><label for="reportRef">Headcode(s)</label><input id="reportRef" type="text" placeholder="e.g. 1A23" maxlength="80" autocomplete="off"></div>
+      <div class="field"><label for="reportNote">Optional note</label><input id="reportNote" type="text" placeholder="Optional" maxlength="120"></div>
+    </div>
+  </section>
+  <div id="trains"></div>
+  <button class="btn primary add-train" id="addTrainBtn" type="button">＋ Add Train</button>
+  <section class="panel">
+    <h2 class="section-title">Export report</h2>
+    <div class="exports">
+      <button class="btn" id="copyBtn2" type="button">▣ Clipboard</button>
+      <button class="btn" id="emailBtn2" type="button">✉ Email</button>
+      <button class="btn primary" id="pdfBtn2" type="button">▤ PDF / Print</button>
+    </div>
+    <p class="muted">The email action copies the report and opens your device's email app. Paste the report into the message body if it is not inserted automatically.</p>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+  </section>
+  <section class="panel">
+    <h2 class="section-title">Saved counts</h2>
+    <div id="savedList"><p class="muted">Your saved reports will appear here.</p></div>
+  </section>
+  <p class="footer-note">Saved locally on this device · Works offline after first load</p>
 </main>
+<div class="modal" id="previewModal" hidden role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+  <div class="modal-head"><strong id="previewTitle">Print preview</strong><button class="btn" id="printBtn" type="button">Print</button><button class="btn danger" id="closePreviewBtn" type="button">Close Preview ✕</button></div>
+  <article class="preview" id="previewContent"></article>
+</div>
 <script>
-const $=id=>document.getElementById(id);
-const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-const STORE='xc-passenger-counts-v1';
-let entryId=null, debounce=null;
-function blankTrain(){return {headcode:'',unit:'',full:false,standing:false,rows:Array.from({length:10},()=>({station:'',first:'',standard:'',entered:false}))}}
-function blankEntry(){return {id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:today(),unit:'',notes:'',trains:[blankTrain()],updated:new Date().toISOString()}}
-let data=blankEntry();
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function readAll(){try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch{return []}}
-function writeAll(a){localStorage.setItem(STORE,JSON.stringify(a))}
+(() => {
+'use strict';
+const APP_KEY = 'xc-passenger-count-pwa-v1-records';
+const DRAFT_KEY = 'xc-passenger-count-pwa-v1-draft';
+const APP_VERSION = '1.0.0';
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+let trains = [];
+let nextId = 1;
+let saveTimer;
+function newTrain(){return {id:nextId++,unit:'',full:false,rows:[{station:'',first:'',standard:'',submitted:false}]};}
+function setStatus(message){$('status').textContent=message;}
+function totalFor(row){return (Number(row.first)||0)+(Number(row.standard)||0);}
+function dateDisplay(iso){if(!iso)return '';const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}
+function collectState(){return {date:$('countDate').value,headcode:$('reportRef').value,note:$('reportNote').value,trains};}
+function persistDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify(collectState()));}catch(e){setStatus('Unable to save automatically on this device. Use Save to try again.');}}
+function scheduleDraft(){clearTimeout(saveTimer);saveTimer=setTimeout(persistDraft,250);}
+function restoreDraft(){
+ try{
+  const raw=localStorage.getItem(DRAFT_KEY);
+  if(raw){const s=JSON.parse(raw);$('countDate').value=s.date||today();$('reportRef').value=s.headcode||'';$('reportNote').value=s.note||'';if(Array.isArray(s.trains)&&s.trains.length){trains=s.trains.map(t=>({...t,id:Number(t.id)||nextId++,rows:Array.isArray(t.rows)&&t.rows.length?t.rows:[{station:'',first:'',standard:'',submitted:false}]}));nextId=Math.max(nextId,...trains.map(t=>Number(t.id)||0))+1;}}
+ }catch(e){}
+ if(!trains.length)trains=[newTrain()];
+}
 function renderTrains(){
- $('trains').innerHTML=data.trains.map((t,ti)=>`<section class="card train" data-train="${ti}">
- <div class="train-head"><h2>Train ${ti+1}</h2><div style="display:flex;gap:6px;align-items:center"><span class="train-badge">10 station rows</span>${ti>0?`<button class="btn secondary remove-train" data-remove="${ti}" type="button">Remove</button>`:''}</div></div>
- <div class="train-meta"><div class="field"><label>HEADCODE</label><input data-field="headcode" value="${esc(t.headcode)}" placeholder="e.g. 1Sxx" maxlength="8"></div><div class="field"><label>UNIT NUMBER (6 DIGITS)</label><input data-field="unit" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" value="${esc(t.unit||'')}" placeholder="e.g. 220001"></div><div class="field wide"><label>TRAIN TOTAL</label><input value="${t.rows.reduce((s,r)=>s+(+r.first||0)+(+r.standard||0),0)}" readonly></div></div>
- <div class="toggles"><label class="toggle"><input type="checkbox" data-field="full" ${t.full?'checked':''}> Full</label><label class="toggle"><input type="checkbox" data-field="standing" ${t.standing?'checked':''}> Standing</label></div>
- <div class="count-head"><span>Station</span><span>First</span><span>Standard</span><span>Total</span><span>Count entered</span></div>
- ${t.rows.map((r,ri)=>`<div class="count-row" data-row="${ri}"><input class="station" data-field="station" value="${esc(r.station)}" placeholder="Station ${ri+1}" aria-label="Train ${ti+1}, station ${ri+1}"><input data-field="first" type="number" min="0" step="1" inputmode="numeric" value="${esc(r.first)}" aria-label="First class count"><input data-field="standard" type="number" min="0" step="1" inputmode="numeric" value="${esc(r.standard)}" aria-label="Standard class count"><input class="total" value="${(+r.first||0)+(+r.standard||0)}" readonly aria-label="Total"><input class="entered" data-field="entered" type="checkbox" ${r.entered?'checked':''} aria-label="Count entered"></div>`).join('')}
- </section>`).join('');
+ const root=$('trains');root.innerHTML='';
+ trains.forEach((train,index)=>{
+  const card=document.createElement('section');card.className='train-card';
+  const rowHtml=train.rows.map((row,i)=>`<tr data-row="${i}">
+    <td><input class="station-input" data-field="station" aria-label="Train ${index+1}, station ${i+1}" value="${esc(row.station)}" placeholder="Station" maxlength="60"></td>
+    <td><input class="count-input" data-field="first" aria-label="First Class count, station ${i+1}" type="number" inputmode="numeric" min="0" max="999" step="1" value="${esc(row.first)}" placeholder="0"></td>
+    <td><input class="count-input" data-field="standard" aria-label="Standard count, station ${i+1}" type="number" inputmode="numeric" min="0" max="999" step="1" value="${esc(row.standard)}" placeholder="0"></td>
+    <td class="total" data-total="${i}">${totalFor(row)}</td><td style="text-align:center"><input class="submitted" data-field="submitted" type="checkbox" aria-label="Station ${i+1} submitted" ${row.submitted?'checked':''}></td>
+  </tr>`).join('');
+  card.innerHTML=`<div class="train-head"><h2>Train ${index+1}</h2><span class="spacer"></span>${trains.length>1?`<button class="btn small danger" data-action="remove-train" type="button">Remove</button>`:''}</div>
+    <div class="field-grid"><div class="field"><label>Unit number</label><input data-train-field="unit" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="Unit number" value="${esc(train.unit)}" aria-label="Train ${index+1} unit number"></div><div class="field"><label>Train reference</label><input type="text" value="${esc($('reportRef').value)}" disabled aria-label="Headcode from count details"></div><div class="field"><label>Rows counted</label><input type="text" value="${train.rows.length}" disabled aria-label="Station row count"></div></div>
+    <label class="check-wrap"><input data-train-field="full" type="checkbox" ${train.full?'checked':''}> Full and Standing</label>
+    <div class="table-wrap"><table class="count-table"><thead><tr><th>Station</th><th>First</th><th>Standard</th><th>Total</th><th>✓</th></tr></thead><tbody>${rowHtml}</tbody></table></div>
+    <div class="table-foot"><button class="btn small" data-action="add-row" type="button">＋ Add station</button><span class="muted">Submitted <input class="submitted" type="checkbox" data-action="submitted-all" aria-label="Mark all stations submitted" ${train.rows.length&&train.rows.every(r=>r.submitted)?'checked':''}></span></div>
+    <div class="train-total">Train total: <span data-grand-total>${train.rows.reduce((sum,r)=>sum+totalFor(r),0)}</span></div>`;
+  card.addEventListener('input',ev=>{
+   const el=ev.target;
+   if(el.dataset.trainField==='unit'){train.unit=el.value.replace(/\D/g,'').slice(0,6);if(el.value!==train.unit)el.value=train.unit;scheduleDraft();return;}
+   const tr=el.closest('tr');if(!tr)return;const ri=Number(tr.dataset.row),field=el.dataset.field;if(!field)return;
+   if(field==='station')train.rows[ri].station=el.value;
+   else if(field==='submitted'){train.rows[ri].submitted=el.checked;scheduleDraft();return;}
+   else {let v=el.value;if(v!==''){v=String(Math.max(0,Math.min(999,Math.floor(Number(v)||0))));if(el.value!==v)el.value=v;}train.rows[ri][field]=v;}
+   tr.querySelector(`[data-total="${ri}"]`).textContent=totalFor(train.rows[ri]);
+   card.querySelector('[data-grand-total]').textContent=train.rows.reduce((sum,r)=>sum+totalFor(r),0);
+   scheduleDraft();
+  });
+  card.addEventListener('change',ev=>{
+   const el=ev.target;
+   if(el.dataset.trainField==='full'){train.full=el.checked;scheduleDraft();}
+   if(el.dataset.action==='submitted-all'){train.rows.forEach(r=>r.submitted=el.checked);renderTrains();scheduleDraft();}
+  });
+  card.addEventListener('click',ev=>{
+   const btn=ev.target.closest('button[data-action]');if(!btn)return;
+   if(btn.dataset.action==='add-row'){train.rows.push({station:'',first:'',standard:'',submitted:false});renderTrains();scheduleDraft();}
+   if(btn.dataset.action==='remove-train'){if(trains.length>1){trains=trains.filter(t=>t.id!==train.id);renderTrains();scheduleDraft();}}
+  });
+  // Per-station submitted checkboxes are included in the table's optional expanded mode via row status is stored with each station.
+  root.appendChild(card);
+ });
 }
-function hydrate(){ $('serviceDate').value=data.date||today();$('notes').value=data.notes||'';renderTrains(); }
-function pullFromDOM(){
- data.date=$('serviceDate').value||today();data.notes=$('notes').value;
- document.querySelectorAll('.train').forEach((el,ti)=>{const t=data.trains[ti];el.querySelectorAll('[data-field]').forEach(inp=>{const f=inp.dataset.field;t[f]=inp.type==='checkbox'?inp.checked:inp.value});el.querySelectorAll('.count-row').forEach((row,ri)=>{row.querySelectorAll('[data-field]').forEach(inp=>{const f=inp.dataset.field;t.rows[ri][f]=inp.type==='checkbox'?inp.checked:inp.value});row.querySelector('.total').value=(+t.rows[ri].first||0)+(+t.rows[ri].standard||0)});el.querySelector('.train-meta input[readonly]').value=t.rows.reduce((s,r)=>s+(+r.first||0)+(+r.standard||0),0)});
+function reportText(){
+ const s=collectState();let out=[`PASSENGER COUNT — ${dateDisplay(s.date)}`,`HEADCODE(s): ${s.headcode||'Not entered'}`];
+ if(s.note)out.push(`NOTE: ${s.note}`);
+ s.trains.forEach((t,i)=>{
+  out.push('',`TRAIN ${i+1}`,`HEADCODE: ${s.headcode||'Not entered'}`,`UNIT: ${t.unit||'Not entered'}`);
+  if(t.full)out.push('FULL AND STANDING: Yes');
+  out.push('Station | First Class | Standard | Total');
+  t.rows.forEach(r=>{if(r.station.trim()||r.first!==''||r.standard!=='')out.push(`${r.station||'—'} | ${r.first===''?'0':r.first} | ${r.standard===''?'0':r.standard} | ${totalFor(r)}`);});
+ });
+ return out.join('\n');
 }
-function save(silent=false){pullFromDOM();data.updated=new Date().toISOString();let all=readAll();const i=all.findIndex(x=>x.id===data.id);if(i>=0)all[i]=structuredClone(data);else all.unshift(structuredClone(data));writeAll(all);entryId=data.id;$('status').textContent=silent?'Autosaved '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'Saved ✓';renderArchive();}
-function queueSave(){clearTimeout(debounce);$('status').textContent='Saving…';debounce=setTimeout(()=>save(true),500)}
-function renderArchive(date=$('archiveDate').value||today()){
- const all=readAll().filter(x=>x.date===date).sort((a,b)=>b.updated.localeCompare(a.updated));
- $('archiveList').innerHTML=all.length?all.map(x=>`<div class="archive-item"><div><strong>${esc(x.date)} · ${esc(x.trains.map(t=>t.headcode).filter(Boolean).join(', ')||'No headcodes')}</strong><span>Units ${esc(x.trains.map((t,i)=>`T${i+1}: ${t.unit||'not entered'}`).join(', '))} · Saved ${new Date(x.updated).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></div><div class="archive-actions"><button class="btn secondary" data-load="${esc(x.id)}">Open</button><button class="btn secondary" data-delete="${esc(x.id)}" aria-label="Delete entry">Delete</button></div></div>`).join(''):'<p class="small-note">No saved entries for this date.</p>';
+function reportHtml(){
+ const s=collectState();
+ let html=`<h1 id="printHeading">Passenger Count</h1><div class="report-meta"><strong>Date:</strong> ${esc(dateDisplay(s.date))}<br><strong>Headcode(s):</strong> ${esc(s.headcode||'Not entered')}${s.note?`<br><strong>Note:</strong> ${esc(s.note)}`:''}</div>`;
+ s.trains.forEach((t,i)=>{
+  html+=`<section class="train-report"><h2>Train ${i+1}</h2><div class="report-meta"><strong>Headcode:</strong> ${esc(s.headcode||'Not entered')} &nbsp; <strong>Unit:</strong> ${esc(t.unit||'Not entered')}${t.full?'<br><strong>Full and Standing:</strong> Yes':''}</div><table><thead><tr><th>Station</th><th>First Class</th><th>Standard</th><th>Total</th><th>Submitted</th></tr></thead><tbody>`;
+  t.rows.forEach(r=>{if(r.station.trim()||r.first!==''||r.standard!=='')html+=`<tr><td>${esc(r.station||'—')}</td><td>${esc(r.first===''?'0':r.first)}</td><td>${esc(r.standard===''?'0':r.standard)}</td><td>${totalFor(r)}</td><td>${r.submitted?'Yes':'No'}</td></tr>`;});
+  html+=`</tbody></table></section>`;
+ });
+ return html;
 }
-$('addTrainBtn').addEventListener('click',()=>{pullFromDOM();data.trains.push(blankTrain());renderTrains();queueSave();document.querySelector('.train:last-child')?.scrollIntoView({behavior:'smooth',block:'start'})});
-$('trains').addEventListener('click',e=>{const n=e.target.dataset.remove;if(n!==undefined){if(!confirm(`Remove Train ${Number(n)+1}?`))return;pullFromDOM();data.trains.splice(Number(n),1);renderTrains();queueSave()}});
-$('trains').addEventListener('input',e=>{if(e.target.matches('input')){pullFromDOM();queueSave()}});
-$('trains').addEventListener('change',e=>{pullFromDOM();queueSave()});
-['serviceDate','notes'].forEach(id=>$(id).addEventListener('input',queueSave));
-$('saveBtn').addEventListener('click',()=>save());
-$('exportBtn').addEventListener('click',()=>{pullFromDOM();save(true);window.print()});
-$('newBtn').addEventListener('click',()=>{if(!confirm('Start a new entry? Current changes are saved automatically.'))return;save(true);data=blankEntry();hydrate();queueSave();window.scrollTo({top:0,behavior:'smooth'})});
-$('showArchive').addEventListener('click',()=>renderArchive());
-$('archiveList').addEventListener('click',e=>{const load=e.target.dataset.load,del=e.target.dataset.delete;if(load){const x=readAll().find(v=>v.id===load);if(x){data=x;hydrate();$('status').textContent='Entry opened'}}if(del&&confirm('Delete this saved entry?')){writeAll(readAll().filter(x=>x.id!==del));renderArchive()}});
-data.date=today();$('archiveDate').value=today();hydrate();renderArchive();
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+async function copyReport(){
+ const text=reportText();
+ try{await navigator.clipboard.writeText(text);setStatus('Report copied to clipboard.');}
+ catch(e){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();setStatus(ok?'Report copied to clipboard.':'Clipboard access unavailable. Select and copy the report from the preview.');}
+}
+async function emailReport(){
+ await copyReport();
+ const subject=`Passenger count for ${$('reportRef').value.trim()||'headcode'}`;
+ // Clipboard is deliberately populated first. Email apps differ in whether they accept a prefilled body; mailto opens the native client reliably.
+ const body='The passenger count report has been copied to your clipboard. Paste it into this email.';
+ location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+ setStatus('Email app opened. Paste the copied report into the message body if it is not already included.');
+}
+function openPreview(){ $('previewContent').innerHTML=reportHtml();$('previewModal').hidden=false;$('closePreviewBtn').focus(); }
+function closePreview(){ $('previewModal').hidden=true; }
+function saveRecord(){
+ const state=collectState();
+ try{
+  let list=JSON.parse(localStorage.getItem(APP_KEY)||'[]');
+  const record={...state,savedAt:new Date().toISOString(),id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`};
+  list.unshift(record);list=list.slice(0,50);localStorage.setItem(APP_KEY,JSON.stringify(list));persistDraft();renderSaved();setStatus('Passenger count saved on this device.');
+ }catch(e){setStatus('Unable to save. Check available device storage.');}
+}
+function loadRecord(id){
+ try{const list=JSON.parse(localStorage.getItem(APP_KEY)||'[]');const s=list.find(x=>x.id===id);if(!s)return;
+  $('countDate').value=s.date||today();$('reportRef').value=s.headcode||'';$('reportNote').value=s.note||'';
+  trains=(s.trains||[]).map(t=>({...t,id:nextId++,rows:t.rows||[]}));if(!trains.length)trains=[newTrain()];
+  renderTrains();persistDraft();setStatus('Saved report loaded. Save again to create an updated saved copy.');window.scrollTo({top:0,behavior:'smooth'});
+ }catch(e){setStatus('Could not load saved report.');}
+}
+function deleteRecord(id){
+ if(!confirm('Delete this saved passenger count from this device?'))return;
+ try{const list=JSON.parse(localStorage.getItem(APP_KEY)||'[]').filter(x=>x.id!==id);localStorage.setItem(APP_KEY,JSON.stringify(list));renderSaved();setStatus('Saved report deleted.');}catch(e){}
+}
+function renderSaved(){
+ const root=$('savedList');let list=[];try{list=JSON.parse(localStorage.getItem(APP_KEY)||'[]');}catch(e){}
+ if(!list.length){root.innerHTML='<p class="muted">No saved reports yet. Press Save at the top to save a count.</p>';return;}
+ root.innerHTML=list.map(r=>`<div style="display:flex;gap:8px;align-items:center;border-top:1px solid var(--line);padding:10px 0"><div style="flex:1;min-width:0"><strong>${esc(dateDisplay(r.date)||'Undated')} · ${esc(r.headcode||'No headcode')}</strong><div class="muted">${esc(new Date(r.savedAt).toLocaleString())} · ${(r.trains||[]).length} train(s)</div></div><button class="btn small" data-load="${esc(r.id)}" type="button">Load</button><button class="btn small danger" data-delete="${esc(r.id)}" type="button">Delete</button></div>`).join('');
+ root.querySelectorAll('[data-load]').forEach(b=>b.addEventListener('click',()=>loadRecord(b.dataset.load)));
+ root.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>deleteRecord(b.dataset.delete)));
+}
+$('addTrainBtn').addEventListener('click',()=>{trains.push(newTrain());renderTrains();scheduleDraft();});
+$('saveBtn').addEventListener('click',saveRecord);
+$('copyBtn').addEventListener('click',copyReport);$('copyBtn2').addEventListener('click',copyReport);
+$('emailBtn').addEventListener('click',emailReport);$('emailBtn2').addEventListener('click',emailReport);
+$('pdfBtn').addEventListener('click',openPreview);$('pdfBtn2').addEventListener('click',openPreview);
+$('closePreviewBtn').addEventListener('click',closePreview);$('printBtn').addEventListener('click',()=>window.print());
+$('previewModal').addEventListener('click',e=>{if(e.target===$('previewModal'))closePreview();});
+['countDate','reportRef','reportNote'].forEach(id=>$(id).addEventListener('input',()=>{if(id==='reportRef')renderTrains();scheduleDraft();}));
+restoreDraft();if(!$('countDate').value)$('countDate').value=today();renderTrains();renderSaved();
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+ window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(reg=>{
+  // Check for updates on opening, and no more than every 12 hours. Never clear saved data.
+  const key='xc-passenger-count-pwa-v1-last-update-check';
+  const last=Number(localStorage.getItem(key)||0);
+  if(Date.now()-last>12*60*60*1000){reg.update().catch(()=>{});localStorage.setItem(key,String(Date.now()));}
+  reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(worker)worker.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller)setStatus('An app update is ready. Close and reopen the app to use it. Your saved counts are preserved.');});});
+ }).catch(()=>{});});
+}
+})();
 </script>
-</body></html>
+</body>
+</html>

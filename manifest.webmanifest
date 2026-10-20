@@ -1,25 +1,19 @@
 {
-  "name": "Train List",
-  "short_name": "Train List",
-  "description": "Build, format, copy, print and email train lists.",
-  "start_url": "./index.html",
+  "name": "Passenger Count",
+  "short_name": "Passenger Count",
+  "description": "CrossCountry-inspired passenger counting PWA",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f2f3f5",
-  "theme_color": "#A50034",
+  "background_color": "#f3f5f7",
+  "theme_color": "#b51f36",
   "icons": [
     {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }

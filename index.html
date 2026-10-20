@@ -38,7 +38,7 @@ h2{font-size:18px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repea
 <div class="field wide"><label for="notes">NOTES</label><textarea id="notes" rows="2" placeholder="Add any relevant notes…"></textarea></div>
 </div>
 <div class="toolbar no-print">
-<button class="btn" id="addTrainBtn">＋ Add train</button><button class="btn" id="saveBtn">Save counts</button><button class="btn amber" id="exportBtn">Print / Save PDF</button><button class="btn secondary" id="newBtn">New entry</button><span class="status" id="status" aria-live="polite">Autosave on</span>
+<button class="btn" id="addTrainBtn">＋ Add train</button><button class="btn" id="saveBtn">Save counts</button><button class="btn amber" id="exportBtn">Print / Save PDF</button><button class="btn secondary" id="copyBtn">Copy to clipboard</button><button class="btn secondary" id="emailBtn">Copy to email</button><button class="btn secondary" id="newBtn">New entry</button><span class="status" id="status" aria-live="polite">Autosave on</span>
 </div>
 <p class="small-note">One train is shown to start. Use Add train to add more whenever needed. Each train has 10 station rows. Totals calculate automatically. Tick “Count entered” when that row is complete.</p>
 </section>
@@ -58,7 +58,7 @@ const $=id=>document.getElementById(id);
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const STORE='xc-passenger-counts-v1';
 let entryId=null, debounce=null;
-function blankTrain(){return {headcode:'',unit:'',full:false,standing:false,rows:Array.from({length:10},()=>({station:'',first:'',standard:'',entered:false}))}}
+function blankTrain(){return {headcode:'',unit:'',fullAndStanding:false,rows:Array.from({length:10},()=>({station:'',first:'',standard:'',entered:false}))}}
 function blankEntry(){return {id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:today(),unit:'',notes:'',trains:[blankTrain()],updated:new Date().toISOString()}}
 let data=blankEntry();
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -68,7 +68,7 @@ function renderTrains(){
  $('trains').innerHTML=data.trains.map((t,ti)=>`<section class="card train" data-train="${ti}">
  <div class="train-head"><h2>Train ${ti+1}</h2><div style="display:flex;gap:6px;align-items:center"><span class="train-badge">10 station rows</span>${ti>0?`<button class="btn secondary remove-train" data-remove="${ti}" type="button">Remove</button>`:''}</div></div>
  <div class="train-meta"><div class="field"><label>HEADCODE</label><input data-field="headcode" value="${esc(t.headcode)}" placeholder="e.g. 1Sxx" maxlength="8"></div><div class="field"><label>UNIT NUMBER (6 DIGITS)</label><input data-field="unit" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" value="${esc(t.unit||'')}" placeholder="e.g. 220001"></div><div class="field wide"><label>TRAIN TOTAL</label><input value="${t.rows.reduce((s,r)=>s+(+r.first||0)+(+r.standard||0),0)}" readonly></div></div>
- <div class="toggles"><label class="toggle"><input type="checkbox" data-field="full" ${t.full?'checked':''}> Full</label><label class="toggle"><input type="checkbox" data-field="standing" ${t.standing?'checked':''}> Standing</label></div>
+ <div class="toggles"><label class="toggle"><input type="checkbox" data-field="fullAndStanding" ${t.fullAndStanding?'checked':''}> Full and standing</label></div>
  <div class="count-head"><span>Station</span><span>First</span><span>Standard</span><span>Total</span><span>Count entered</span></div>
  ${t.rows.map((r,ri)=>`<div class="count-row" data-row="${ri}"><input class="station" data-field="station" value="${esc(r.station)}" placeholder="Station ${ri+1}" aria-label="Train ${ti+1}, station ${ri+1}"><input data-field="first" type="number" min="0" step="1" inputmode="numeric" value="${esc(r.first)}" aria-label="First class count"><input data-field="standard" type="number" min="0" step="1" inputmode="numeric" value="${esc(r.standard)}" aria-label="Standard class count"><input class="total" value="${(+r.first||0)+(+r.standard||0)}" readonly aria-label="Total"><input class="entered" data-field="entered" type="checkbox" ${r.entered?'checked':''} aria-label="Count entered"></div>`).join('')}
  </section>`).join('');

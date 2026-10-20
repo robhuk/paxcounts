@@ -1,12 +1,11 @@
 XC PASSENGER COUNTS PWA
 =======================
-Starts with ONE train section. Select + Add train to add more trains as required.
-EACH TRAIN has its own headcode and six-digit unit number field, Full and Standing flags, and 10 station rows.
-Columns: Station, First, Standard, Total and Count entered checkbox.
-Includes automatic totals, autosave, date-based saved-entry archive, notes and Print / Save PDF.
-PWA manifest, app icons and offline shell caching are included.
+Starts with ONE train section. Use + Add train to add more.
+Each train has its own headcode, six-digit unit number, one Full and standing checkbox, and 10 station rows.
+Includes automatic totals, autosave, saved-entry archive, notes, Print / Save PDF and Email export.
+Email export opens the device email app with subject 'passenger count for HEADCODE(s)' and a formatted count summary.
+Host over HTTPS and use Add to Home Screen / Install App. Data is stored locally on the device and does not sync automatically.
 
-INSTALL
-1. Extract the ZIP and upload all files to an HTTPS web host, preserving the folder structure.
-2. Open the hosted app and choose Add to Home Screen / Install App.
-Saved entries are stored in that browser on that device and do not sync automatically.
+Email report rule: the 'Full and standing yes' line is included only when the checkbox is ticked; otherwise the line is omitted.
+
+Export actions: Copy to clipboard copies the subject and report text. Copy to email copies the report and opens a prefilled email draft.

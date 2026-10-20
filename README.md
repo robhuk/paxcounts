@@ -1,15 +1,15 @@
 # Passenger Count PWA
 
-A mobile-first passenger-counting Progressive Web App with a CrossCountry-inspired colour theme.
+A mobile-first passenger-counting Progressive Web App with an XC red, navy and blue theme.
 
 ## Features
 - Starts with one train; add additional trains as required.
-- Date, headcode(s), optional note and per-train unit number.
+- Date, headcode(s), per-train unit number, and a bottom-of-form Notes / Reason field (e.g. reason for not using STAR Mobile).
 - Full and Standing checkbox for each train.
-- Editable station, First Class and Standard counts; totals calculated automatically.
+- Ten station rows per train; editable station, First Class and Standard counts; totals calculated automatically.
 - Save button at the top, automatic draft persistence, saved-report list, load and delete.
 - Copy report to clipboard.
-- Copy report and open the device's native email app.
+- Copy report and open the device's native email app with counts prefilled in the message body.
 - Print/PDF preview with Print and Close Preview controls.
 - Offline shell cache and update check every 12 hours when opened.
 - Unique cache and local-storage identifiers; routine app updates do not delete saved passenger counts.

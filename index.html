@@ -7,17 +7,17 @@
 <meta name="description" content="Offline-friendly passenger count tool">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
-<title>Passenger Count</title>
+<title>Passenger Count | XC</title>
 <style>
 :root{--red:#b51f36;--red-dark:#8f172a;--navy:#252b35;--ink:#17202b;--muted:#647080;--line:#dce1e7;--paper:#fff;--bg:#f3f5f7;--green:#176b3a}
-*{box-sizing:border-box}html{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}body{margin:0;padding:0 0 env(safe-area-inset-bottom)}button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation}.topbar{position:sticky;top:0;z-index:5;background:var(--navy);color:white;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;box-shadow:0 2px 10px #0002}.brand{display:flex;align-items:center;gap:10px;max-width:1000px;margin:0 auto 10px}.logo{width:42px;height:42px;flex:none}.brand h1{font-size:1.15rem;line-height:1.15;margin:0}.brand p{font-size:.76rem;color:#d5d9df;margin:3px 0 0}.save{margin-left:auto;background:#fff;color:var(--red-dark);font-weight:800;border:0;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:7px}.toolbar{max-width:1000px;margin:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.btn{border:1px solid var(--line);background:white;color:var(--ink);border-radius:10px;padding:11px 10px;font-weight:650;min-height:43px}.btn.primary{background:var(--red);border-color:var(--red);color:white}.btn.dark{background:var(--navy);border-color:var(--navy);color:white}.btn.danger{color:var(--red-dark);border-color:#e5b7bf;background:#fff8f9}.btn.small{padding:8px 10px;min-height:36px;font-size:.88rem}.container{max-width:1000px;margin:14px auto;padding:0 12px 28px}.notice{font-size:.8rem;line-height:1.4;color:#4c3c16;background:#fff4d5;border:1px solid #f1dfa4;border-radius:10px;padding:10px 12px;margin-bottom:12px}.panel,.train-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:13px;box-shadow:0 2px 6px #17202b08}.section-title{font-size:1rem;font-weight:800;margin:0 0 12px}.field-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.field label{display:block;font-size:.78rem;font-weight:750;color:#505b68;margin:0 0 5px}.field input{width:100%;min-width:0;border:1px solid #cbd2db;border-radius:9px;padding:10px;background:white;color:var(--ink)}.field input:focus,.count-input:focus{outline:2px solid #d98b98;outline-offset:1px}.train-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}.train-head h2{font-size:1rem;margin:0}.train-head .spacer{flex:1}.check-wrap{display:flex;align-items:center;gap:8px;border:1px solid #e6c4ca;background:#fff7f8;border-radius:10px;padding:10px 11px;margin:12px 0 0;font-weight:700;font-size:.9rem}.check-wrap input{width:20px;height:20px;accent-color:var(--red)}.table-wrap{width:100%;overflow-x:auto;margin-top:12px}.count-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:.83rem}.count-table th{background:#f0f2f5;color:#374151;font-weight:750;font-size:.75rem;padding:9px 5px;text-align:left;border-bottom:1px solid var(--line)}.count-table th:first-child{border-radius:8px 0 0 0}.count-table th:last-child{border-radius:0 8px 0 0}.count-table td{padding:6px 4px;border-bottom:1px solid #e9edf1;vertical-align:middle}.count-table th:nth-child(1){width:39%}.count-table th:nth-child(2),.count-table th:nth-child(3){width:22%}.count-table th:nth-child(4){width:13%}.count-table th:nth-child(5){width:8%}.station-input,.count-input{width:100%;min-width:0;border:1px solid #d1d7df;border-radius:7px;padding:9px 5px;background:white}.count-input{text-align:center;font-variant-numeric:tabular-nums}.total{font-weight:800;text-align:center;font-variant-numeric:tabular-nums}.submitted{width:19px;height:19px;accent-color:var(--green)}.table-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}.muted{font-size:.78rem;color:var(--muted)}.train-total{font-weight:800;text-align:right;margin-top:10px}.add-train{width:100%;margin-bottom:13px}.exports{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.footer-note{text-align:center;font-size:.75rem;color:var(--muted);padding:8px}.status{min-height:1.1em;font-size:.8rem;color:var(--green);font-weight:650;margin:8px 0 0}.modal{position:fixed;inset:0;z-index:20;background:#10151dcc;display:flex;flex-direction:column;padding:12px;padding-top:calc(12px + env(safe-area-inset-top));}.modal[hidden]{display:none}.modal-head{display:flex;gap:8px;align-items:center;color:white;margin:0 auto 10px;width:100%;max-width:900px}.modal-head strong{flex:1}.preview{background:white;color:#111;overflow:auto;flex:1;width:100%;max-width:900px;margin:0 auto;border-radius:8px;padding:20px}.preview h1{font-size:1.35rem;margin-top:0}.preview h2{font-size:1.05rem;margin:22px 0 7px}.preview table{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:12px}.preview th,.preview td{border:1px solid #bbb;padding:5px;text-align:left}.preview th{background:#eee}.preview .report-meta{font-size:13px;line-height:1.6}.empty{padding:22px;text-align:center;color:var(--muted)}@media(min-width:650px){.toolbar{grid-template-columns:repeat(3,1fr)}.field-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.container{padding-left:18px;padding-right:18px}.panel,.train-card{padding:18px}}@media(max-width:370px){.toolbar{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.toolbar .btn{font-size:.78rem;padding:9px 4px}.field-grid{gap:7px}.count-table{font-size:.76rem}.count-table th{font-size:.68rem}.count-table th:nth-child(1){width:37%}.count-table th:nth-child(2),.count-table th:nth-child(3){width:23%}.count-table th:nth-child(4){width:13%}.count-table th:nth-child(5){width:8%}.station-input,.count-input{padding:8px 3px}.panel,.train-card{padding:11px}}@media print{body{background:white}.topbar,.container,.modal-head{display:none!important}.modal{position:static;display:block!important;background:white;padding:0}.preview{max-width:none;overflow:visible;padding:0;border-radius:0}.preview h1{font-size:18pt}.preview h2{break-after:avoid}.preview table{break-inside:avoid}.preview .train-report{break-inside:avoid}@page{margin:12mm}}
+*{box-sizing:border-box}html{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}body{margin:0;padding:0 0 env(safe-area-inset-bottom)}button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation}.topbar{position:sticky;top:0;z-index:5;background:linear-gradient(115deg,#252b35 0%,#252b35 72%,#b51f36 72%,#b51f36 84%,#183d63 84%,#183d63 100%);color:white;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;box-shadow:0 2px 10px #0002}.brand{display:flex;align-items:center;gap:10px;max-width:1000px;margin:0 auto 10px}.logo{width:42px;height:42px;flex:none}.brand h1{font-size:1.15rem;line-height:1.15;margin:0}.brand p{font-size:.76rem;color:#d5d9df;margin:3px 0 0}.save{margin-left:auto;background:#fff;color:var(--red-dark);font-weight:800;border:0;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:7px}.toolbar{max-width:1000px;margin:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.btn{border:1px solid var(--line);background:white;color:var(--ink);border-radius:10px;padding:11px 10px;font-weight:650;min-height:43px}.btn.primary{background:var(--red);border-color:var(--red);color:white}.btn.dark{background:var(--navy);border-color:var(--navy);color:white}.btn.danger{color:var(--red-dark);border-color:#e5b7bf;background:#fff8f9}.btn.small{padding:8px 10px;min-height:36px;font-size:.88rem}.container{max-width:1000px;margin:14px auto;padding:0 12px 28px}.notice{font-size:.8rem;line-height:1.4;color:#4c3c16;background:#fff4d5;border:1px solid #f1dfa4;border-radius:10px;padding:10px 12px;margin-bottom:12px}.panel,.train-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:13px;box-shadow:0 2px 6px #17202b08}.section-title{font-size:1rem;font-weight:800;margin:0 0 12px}.field-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.field label{display:block;font-size:.78rem;font-weight:750;color:#505b68;margin:0 0 5px}.field input{width:100%;min-width:0;border:1px solid #cbd2db;border-radius:9px;padding:10px;background:white;color:var(--ink)}.field input:focus,.count-input:focus{outline:2px solid #d98b98;outline-offset:1px}.train-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}.train-head h2{font-size:1rem;margin:0}.train-head .spacer{flex:1}.check-wrap{display:flex;align-items:center;gap:8px;border:1px solid #e6c4ca;background:#fff7f8;border-radius:10px;padding:10px 11px;margin:12px 0 0;font-weight:700;font-size:.9rem}.check-wrap input{width:20px;height:20px;accent-color:var(--red)}.table-wrap{width:100%;overflow-x:auto;margin-top:12px}.count-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:.83rem}.count-table th{background:#f0f2f5;color:#374151;font-weight:750;font-size:.75rem;padding:9px 5px;text-align:left;border-bottom:1px solid var(--line)}.count-table th:first-child{border-radius:8px 0 0 0}.count-table th:last-child{border-radius:0 8px 0 0}.count-table td{padding:6px 4px;border-bottom:1px solid #e9edf1;vertical-align:middle}.count-table th:nth-child(1){width:39%}.count-table th:nth-child(2),.count-table th:nth-child(3){width:22%}.count-table th:nth-child(4){width:13%}.count-table th:nth-child(5){width:8%}.station-input,.count-input{width:100%;min-width:0;border:1px solid #d1d7df;border-radius:7px;padding:9px 5px;background:white}.count-input{text-align:center;font-variant-numeric:tabular-nums}.total{font-weight:800;text-align:center;font-variant-numeric:tabular-nums}.submitted{width:19px;height:19px;accent-color:var(--green)}.table-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}.muted{font-size:.78rem;color:var(--muted)}.train-total{font-weight:800;text-align:right;margin-top:10px}.add-train{width:100%;margin-bottom:13px}.exports{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.footer-note{text-align:center;font-size:.75rem;color:var(--muted);padding:8px}.status{min-height:1.1em;font-size:.8rem;color:var(--green);font-weight:650;margin:8px 0 0}.modal{position:fixed;inset:0;z-index:20;background:#10151dcc;display:flex;flex-direction:column;padding:12px;padding-top:calc(12px + env(safe-area-inset-top));}.modal[hidden]{display:none}.modal-head{display:flex;gap:8px;align-items:center;color:white;margin:0 auto 10px;width:100%;max-width:900px}.modal-head strong{flex:1}.preview{background:white;color:#111;overflow:auto;flex:1;width:100%;max-width:900px;margin:0 auto;border-radius:8px;padding:20px}.preview h1{font-size:1.35rem;margin-top:0}.preview h2{font-size:1.05rem;margin:22px 0 7px}.preview table{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:12px}.preview th,.preview td{border:1px solid #bbb;padding:5px;text-align:left}.preview th{background:#eee}.preview .report-meta{font-size:13px;line-height:1.6}.empty{padding:22px;text-align:center;color:var(--muted)}@media(min-width:650px){.toolbar{grid-template-columns:repeat(3,1fr)}.field-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.container{padding-left:18px;padding-right:18px}.panel,.train-card{padding:18px}}@media(max-width:370px){.toolbar{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.toolbar .btn{font-size:.78rem;padding:9px 4px}.field-grid{gap:7px}.count-table{font-size:.76rem}.count-table th{font-size:.68rem}.count-table th:nth-child(1){width:37%}.count-table th:nth-child(2),.count-table th:nth-child(3){width:23%}.count-table th:nth-child(4){width:13%}.count-table th:nth-child(5){width:8%}.station-input,.count-input{padding:8px 3px}.panel,.train-card{padding:11px}}@media print{body{background:white}.topbar,.container,.modal-head{display:none!important}.modal{position:static;display:block!important;background:white;padding:0}.preview{max-width:none;overflow:visible;padding:0;border-radius:0}.preview h1{font-size:18pt}.preview h2{break-after:avoid}.preview table{break-inside:avoid}.preview .train-report{break-inside:avoid}@page{margin:12mm}}
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="brand">
     <svg class="logo" viewBox="0 0 48 48" role="img" aria-label="Passenger Count logo"><rect width="48" height="48" rx="10" fill="#b51f36"/><path d="M11 10h26v21a5 5 0 0 1-5 5H16a5 5 0 0 1-5-5z" fill="#fff"/><path d="M15 15h18v10H15z" fill="#252b35"/><path d="M16 31h4m8 0h4M17 40l4-4m10 4-4-4" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="M8 42h32" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
-    <div><h1>Passenger Count</h1><p>CrossCountry-inspired passenger counting</p></div>
+    <div><h1>Passenger Count</h1></div>
     <button class="save" id="saveBtn" type="button" title="Save passenger count">✓ Save</button>
   </div>
   <nav class="toolbar" aria-label="Report actions">
@@ -27,17 +27,23 @@
   </nav>
 </header>
 <main class="container">
-  <div class="notice"><strong>Important:</strong> Make sure to check for engineering work or other short-term alterations before relying on any operational information.</div>
   <section class="panel">
     <h2 class="section-title">Count details</h2>
     <div class="field-grid">
       <div class="field"><label for="countDate">Date</label><input id="countDate" type="date"></div>
       <div class="field"><label for="reportRef">Headcode(s)</label><input id="reportRef" type="text" placeholder="e.g. 1A23" maxlength="80" autocomplete="off"></div>
-      <div class="field"><label for="reportNote">Optional note</label><input id="reportNote" type="text" placeholder="Optional" maxlength="120"></div>
+      
     </div>
   </section>
   <div id="trains"></div>
   <button class="btn primary add-train" id="addTrainBtn" type="button">＋ Add Train</button>
+  <section class="panel">
+    <h2 class="section-title">Notes / Reason</h2>
+    <div class="field">
+      <label for="reportNote">Train notes or relevant information, e.g. reason for not using STAR Mobile</label>
+      <input id="reportNote" type="text" placeholder="Enter train notes or reason for not using STAR Mobile" maxlength="500">
+    </div>
+  </section>
   <section class="panel">
     <h2 class="section-title">Export report</h2>
     <div class="exports">
@@ -70,7 +76,7 @@ const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(
 let trains = [];
 let nextId = 1;
 let saveTimer;
-function newTrain(){return {id:nextId++,unit:'',full:false,rows:[{station:'',first:'',standard:'',submitted:false}]};}
+function newTrain(){return {id:nextId++,unit:'',full:false,rows:Array.from({length:10},()=>({station:'',first:'',standard:'',submitted:false}))};}
 function setStatus(message){$('status').textContent=message;}
 function totalFor(row){return (Number(row.first)||0)+(Number(row.standard)||0);}
 function dateDisplay(iso){if(!iso)return '';const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;}
@@ -80,7 +86,8 @@ function scheduleDraft(){clearTimeout(saveTimer);saveTimer=setTimeout(persistDra
 function restoreDraft(){
  try{
   const raw=localStorage.getItem(DRAFT_KEY);
-  if(raw){const s=JSON.parse(raw);$('countDate').value=s.date||today();$('reportRef').value=s.headcode||'';$('reportNote').value=s.note||'';if(Array.isArray(s.trains)&&s.trains.length){trains=s.trains.map(t=>({...t,id:Number(t.id)||nextId++,rows:Array.isArray(t.rows)&&t.rows.length?t.rows:[{station:'',first:'',standard:'',submitted:false}]}));nextId=Math.max(nextId,...trains.map(t=>Number(t.id)||0))+1;}}
+  if(raw){const s=JSON.parse(raw);$('countDate').value=s.date||today();$('reportRef').value=s.headcode||'';$('reportNote').value=s.note||'';if(Array.isArray(s.trains)&&s.trains.length){trains=s.trains.map(t=>({...t,id:Number(t.id)||nextId++,rows:Array.isArray(t.rows)&&t.rows.length?t.rows.slice(0,10):Array.from({length:10},()=>({station:'',first:'',standard:'',submitted:false}))}));trains.forEach(t=>{while(t.rows.length<10)t.rows.push({station:'',first:'',standard:'',submitted:false});});
+  nextId=Math.max(nextId,...trains.map(t=>Number(t.id)||0))+1;}}
  }catch(e){}
  if(!trains.length)trains=[newTrain()];
 }
@@ -98,7 +105,7 @@ function renderTrains(){
     <div class="field-grid"><div class="field"><label>Unit number</label><input data-train-field="unit" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]*" placeholder="Unit number" value="${esc(train.unit)}" aria-label="Train ${index+1} unit number"></div><div class="field"><label>Train reference</label><input type="text" value="${esc($('reportRef').value)}" disabled aria-label="Headcode from count details"></div><div class="field"><label>Rows counted</label><input type="text" value="${train.rows.length}" disabled aria-label="Station row count"></div></div>
     <label class="check-wrap"><input data-train-field="full" type="checkbox" ${train.full?'checked':''}> Full and Standing</label>
     <div class="table-wrap"><table class="count-table"><thead><tr><th>Station</th><th>First</th><th>Standard</th><th>Total</th><th>✓</th></tr></thead><tbody>${rowHtml}</tbody></table></div>
-    <div class="table-foot"><button class="btn small" data-action="add-row" type="button">＋ Add station</button><span class="muted">Submitted <input class="submitted" type="checkbox" data-action="submitted-all" aria-label="Mark all stations submitted" ${train.rows.length&&train.rows.every(r=>r.submitted)?'checked':''}></span></div>
+    <div class="table-foot"><span class="muted">10 station rows</span><span class="muted">Submitted <input class="submitted" type="checkbox" data-action="submitted-all" aria-label="Mark all stations submitted" ${train.rows.length&&train.rows.every(r=>r.submitted)?'checked':''}></span></div>
     <div class="train-total">Train total: <span data-grand-total>${train.rows.reduce((sum,r)=>sum+totalFor(r),0)}</span></div>`;
   card.addEventListener('input',ev=>{
    const el=ev.target;
@@ -118,7 +125,7 @@ function renderTrains(){
   });
   card.addEventListener('click',ev=>{
    const btn=ev.target.closest('button[data-action]');if(!btn)return;
-   if(btn.dataset.action==='add-row'){train.rows.push({station:'',first:'',standard:'',submitted:false});renderTrains();scheduleDraft();}
+   
    if(btn.dataset.action==='remove-train'){if(trains.length>1){trains=trains.filter(t=>t.id!==train.id);renderTrains();scheduleDraft();}}
   });
   // Per-station submitted checkboxes are included in the table's optional expanded mode via row status is stored with each station.
@@ -127,7 +134,6 @@ function renderTrains(){
 }
 function reportText(){
  const s=collectState();let out=[`PASSENGER COUNT — ${dateDisplay(s.date)}`,`HEADCODE(s): ${s.headcode||'Not entered'}`];
- if(s.note)out.push(`NOTE: ${s.note}`);
  s.trains.forEach((t,i)=>{
   out.push('',`TRAIN ${i+1}`,`HEADCODE: ${s.headcode||'Not entered'}`,`UNIT: ${t.unit||'Not entered'}`);
   if(t.full)out.push('FULL AND STANDING: Yes');
@@ -144,6 +150,7 @@ function reportHtml(){
   t.rows.forEach(r=>{if(r.station.trim()||r.first!==''||r.standard!=='')html+=`<tr><td>${esc(r.station||'—')}</td><td>${esc(r.first===''?'0':r.first)}</td><td>${esc(r.standard===''?'0':r.standard)}</td><td>${totalFor(r)}</td><td>${r.submitted?'Yes':'No'}</td></tr>`;});
   html+=`</tbody></table></section>`;
  });
+ if(s.note.trim())html+=`<section class="train-report"><h2>Notes / Reason</h2><p>${esc(s.note.trim())}</p></section>`;
  return html;
 }
 async function copyReport(){
@@ -155,9 +162,9 @@ async function emailReport(){
  await copyReport();
  const subject=`Passenger count for ${$('reportRef').value.trim()||'headcode'}`;
  // Clipboard is deliberately populated first. Email apps differ in whether they accept a prefilled body; mailto opens the native client reliably.
- const body='The passenger count report has been copied to your clipboard. Paste it into this email.';
+ const body=reportText();
  location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
- setStatus('Email app opened. Paste the copied report into the message body if it is not already included.');
+ setStatus('Email app opened with the passenger counts in the message body. If your email app omits them, paste the copied report.');
 }
 function openPreview(){ $('previewContent').innerHTML=reportHtml();$('previewModal').hidden=false;$('closePreviewBtn').focus(); }
 function closePreview(){ $('previewModal').hidden=true; }

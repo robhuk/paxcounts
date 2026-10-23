@@ -1,6 +1,6 @@
 /* Passenger Count PWA — unique cache namespace; preserve local data on updates. */
-const CACHE_NAME = 'xc-passenger-count-pwa-shell-v1';
-const SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg'];
+const CACHE_NAME = 'xc-passenger-count-pwa-shell-v6';
+const SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg','./voyager-header.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });

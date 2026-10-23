@@ -4,9 +4,9 @@ A mobile-first passenger-counting Progressive Web App with an XC red, navy and b
 
 ## Features
 - Starts with one train; add additional trains as required.
-- Date, headcode(s), per-train unit number, and a bottom-of-form Notes / Reason field (e.g. reason for not using STAR Mobile).
+- Date on the main sheet; each train has its own headcode/train reference, unit number and notes/comments field. A general Notes / Reason field remains at the bottom for report-wide information (e.g. reason for not using STAR Mobile).
 - Full and Standing checkbox for each train.
-- Ten station rows per train; editable station, First Class and Standard counts; totals calculated automatically.
+- Ten station rows per train; editable station, First Class and Standard counts; station totals calculated automatically. No cumulative train total is displayed or exported.
 - Save button at the top, automatic draft persistence, saved-report list, load and delete.
 - Copy report to clipboard.
 - Copy report and open the device's native email app with counts prefilled in the message body.
@@ -26,3 +26,6 @@ A mobile-first passenger-counting Progressive Web App with an XC red, navy and b
 - Email applications differ in how they handle prefilled message bodies. The app copies the report and opens the native email composer; paste the report if it is not automatically inserted.
 - PDF export uses the browser/device print sheet. Select **Save as PDF** where offered.
 - Service worker updates are checked on app open at most every 12 hours. New service-worker shell assets are cached separately from saved records.
+
+
+PDF / print reports include a compact monochrome XC Voyager train illustration and top-line motif adapted from the railway shift notes sheet. The graphic is bundled locally for offline use.
